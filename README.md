@@ -10,7 +10,6 @@ Requirement
  - TUIO UPDD server
 [http://www.touch-base.com/documentation/TUIO.htm](http://www.touch-base.com/documentation/TUIO.htm)
 
-
 ###Openframeworks Addon
 
  - Openframeworks 0073
@@ -22,6 +21,7 @@ Requirement
  - ofxEasingFunc
 [https://github.com/satoruhiga/ofxEasingFunc](https://github.com/satoruhiga/ofxEasingFunc)
 
+ - ofxOSC
 
 Credit
 ---

@@ -10,5 +10,5 @@ class robo: public button{
     int tapped(float _x, float _y);
     void dragAngle(float _, float _y);
     bool dragAngleEnded(float _, float _y);
-    
+    void setDefaultAngle();
 };

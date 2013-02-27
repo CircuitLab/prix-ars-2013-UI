@@ -5,8 +5,10 @@ void testApp::setup(){
     ofEnableSmoothing();
     ofSetBackgroundAuto(true);
     ofSetCircleResolution(100);
+    ofHideCursor();
     
     tuioClient.start(3333);
+    toDisplay.setup(DISPLAYHOST,DISPLAYPORT);
     
     ofAddListener(tuioClient.cursorAdded,this,&testApp::tuioAdded);
 	ofAddListener(tuioClient.cursorRemoved,this,&testApp::tuioRemoved);
@@ -16,11 +18,11 @@ void testApp::setup(){
     fujiPoint.set(964,600);
     
     for (int i =0; i< 10; i++) {
-        button b(ofRandom(ofGetWidth()),ofRandom(ofGetHeight() -100),i,fujiPoint,ofRandom(40,100));
+        button b(ofRandom(ofGetWidth()),ofRandom(ofGetHeight() -100),i,fujiPoint,ofRandom(20,60));
         buttons.push_back(b);
     }
     for (int i=10; i< 16; i++) {
-        robo r(ofRandom(ofGetWidth()),ofRandom(ofGetHeight() -100),i,fujiPoint,ofRandom(40,100));
+        robo r(ofRandom(ofGetWidth()),ofRandom(ofGetHeight() -100),i,fujiPoint,ofRandom(20,60));
         robos.push_back(r);
     }
     
@@ -74,6 +76,7 @@ void testApp::draw(){
     
 }
 
+//multi touch test
 void testApp::drawUpdated(){
     
     list<ofxTuioCursor*> cursorList = tuioClient.getTuioCursors();
@@ -92,6 +95,7 @@ void testApp::drawUpdated(){
         }
     }
 }
+
 void testApp::tuioAdded(ofxTuioCursor &tuioCursor){
 	ofPoint loc = ofPoint(tuioCursor.getX()*ofGetWidth(),tuioCursor.getY()*ofGetHeight());
     
@@ -103,6 +107,7 @@ void testApp::tuioAdded(ofxTuioCursor &tuioCursor){
         if ( bid >= 0 && bid != eye[0] && bid != eye[1]){
             setEye(bid);
             buttons[i].setStatus(1);
+            sendOSCtoDisplay(bid);
         }
     }
     for (int i = 0 ; i < robos.size(); i++) {
@@ -110,6 +115,7 @@ void testApp::tuioAdded(ofxTuioCursor &tuioCursor){
         if ( bid >= 0 && bid != eye[0] && bid != eye[1]){
             setEye(bid);
             robos[i].setStatus(1);
+            sendOSCtoDisplay(bid);
         }
     }
     
@@ -128,6 +134,8 @@ void testApp::tuioUpdated(ofxTuioCursor &tuioCursor){
 void testApp::tuioRemoved(ofxTuioCursor &tuioCursor){
 	ofPoint loc = ofPoint(tuioCursor.getX()*ofGetWidth(),tuioCursor.getY()*ofGetHeight());
 	//cout << "Point n" << tuioCursor.getSessionId() << " remove at " << loc << endl;
+    
+    
 }
 
 void testApp::setEye(int _bid){
@@ -150,6 +158,19 @@ void testApp::setEye(int _bid){
         }else{
             selectMode = 0;
         }
+}
+
+void testApp::sendOSCtoDisplay(int _bid){
+    ofxOscMessage m;
+    if (selectMode ==1) {
+      m.setAddress("/right/image");
+      m.addStringArg("right file address");
+    } else if ( selectMode ==0)  {
+      m.setAddress("/left/image");
+      m.addStringArg("left file address");
+    }
+    m.addIntArg(_bid);
+    toDisplay.sendMessage(m);
 }
 
 //--------------------------------------------------------------

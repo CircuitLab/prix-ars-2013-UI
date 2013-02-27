@@ -7,8 +7,9 @@ Requirement
 
 ###Touch panel for Mac
 
- - TUIO UPDD
+ - TUIO UPDD server
 [http://www.touch-base.com/documentation/TUIO.htm](http://www.touch-base.com/documentation/TUIO.htm)
+
 
 ###Openframeworks Addon
 

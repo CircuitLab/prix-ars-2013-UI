@@ -8,7 +8,8 @@ protected:
     float x,y,radius;
     int bid;
     ofPoint fuji;
-    double directionToFuji;
+    double directionToFuji; //radian
+    double currentDirection;
     double calcDirection(ofPoint *_p1, ofPoint *_p2);
     double viewAngle;
     

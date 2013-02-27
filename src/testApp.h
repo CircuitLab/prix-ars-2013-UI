@@ -6,6 +6,12 @@
 //#include "button.h"
 #include "robo.h"
 
+#define DISPLAYHOST "127.0.0.1"
+#define DISPLAYPORT 4444
+
+#define SEVERHOST "127.0.0.1"
+#define SERVERPORT 5555
+
 class testApp : public ofBaseApp{
 public:
     void setup();
@@ -38,4 +44,12 @@ public:
     int eye[2]; //0:right 1:left
     int selectMode;//0:select right eye, 1:select left eye
     void setEye(int _bid);
+    
+    ofxOscSender toDisplay;
+    void sendOSCtoDisplay(int _bid);
+    
+    ofxOscSender toServer;
+    ofxOscReceiver fromServer;
+    string rightImageFile,leftImageFile;
+    
 };

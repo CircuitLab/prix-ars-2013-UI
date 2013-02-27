@@ -24,8 +24,8 @@ void robo::draw(){
     path.setCurveResolution(60);
     path.setColor( ofColor(255, 255, 0,40));
     path.moveTo(x,y);
-    float angle1 = 360 -( 360 * directionToFuji/(PI*2) + viewAngle/2) ;
-    float angle2 = 360 - (360 * directionToFuji/(PI*2) - viewAngle/2) ;
+    float angle1 = 360 -( 360 * currentDirection/(PI*2) + viewAngle/2) ;
+    float angle2 = 360 - (360 * currentDirection/(PI*2) - viewAngle/2) ;
     path.arc(x,y,distanceToFuji,distanceToFuji,angle1,angle2);
     
     
@@ -39,7 +39,7 @@ void robo::draw(){
     }
     
     ofSetColor(255, 255, 255,200);
-    ofLine(x, y, x + cos(directionToFuji) *lineLength  ,y - sin(directionToFuji)*lineLength);
+    ofLine(x, y, x + cos(currentDirection) *lineLength  ,y - sin(currentDirection)*lineLength);
      //ofDrawBitmapString(ofToString(bid), x,y+50);
     
     ofSetColor(c);
@@ -59,7 +59,7 @@ void robo::draw(){
     ofPopMatrix();
      if(status ==1){
       ofSetColor(50, 50, 50,200);
-      ofCircle(x + cos(directionToFuji) * times * radius /2.7  , y - sin(directionToFuji) * times *radius /2.7, times *radius / 12);
+      ofCircle(x + cos(currentDirection) * times * radius /2.7  , y - sin(currentDirection) * times *radius /2.7, times *radius / 12);
      }
     ofSetColor(255, 255, 255);
 
@@ -67,7 +67,11 @@ void robo::draw(){
 }
 
 int robo::tapped(float _x, float _y){
-   return button::tapped(_x,_y);
+   int _bid = button::tapped(_x,_y);
+    if (_bid != -1 && status ==1){
+        setDefaultAngle();
+    }
+    return _bid;
 }
 
 void robo::dragAngle(float _x, float _y){
@@ -78,7 +82,7 @@ void robo::dragAngle(float _x, float _y){
             ofPoint p2 = ofPoint(_x,_y);
             float newAngle = button::calcDirection(&p1,&p2);
         //    if(newAngle < directionToFuji + 0.8 && newAngle > directionToFuji - 0.8 ){
-                directionToFuji = newAngle;
+                currentDirection = newAngle;
           //  }
         }
     }
@@ -95,5 +99,7 @@ bool robo::dragAngleEnded (float _x, float _y){
     return false;
 }
 
-
+void robo::setDefaultAngle(){
+    currentDirection = directionToFuji;
+}
 

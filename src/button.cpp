@@ -14,6 +14,7 @@ button::button(float _x, float _y, int _bid, ofPoint _fuji, float _angle){
     ofPoint current;
     current.set(_x, _y);
     directionToFuji = calcDirection(&current, &fuji);
+    currentDirection = directionToFuji;
     viewAngle = _angle;
 }
 
@@ -37,11 +38,11 @@ void button::draw(){
     float distanceToFuji = sqrt((x-fuji.x)*(x-fuji.x) + (y-fuji.y)*(y-fuji.y));
     distanceToFuji +=100;
     ofPath path;
-    path.setCurveResolution(60);
+    path.setCurveResolution(120);
     path.setColor( ofColor(50, 200, 255,40));
     path.moveTo(x,y);
-    float angle1 = 360 -( 360 * directionToFuji/(PI*2) + viewAngle/2) ;
-    float angle2 = 360 - (360 * directionToFuji/(PI*2) - viewAngle/2) ;
+    float angle1 = 360 -( 360 * currentDirection/(PI*2) + viewAngle/2) ;
+    float angle2 = 360 - (360 * currentDirection/(PI*2) - viewAngle/2) ;
     path.arc(x,y,distanceToFuji,distanceToFuji,angle1,angle2);
     
     
@@ -56,7 +57,7 @@ void button::draw(){
     }
     
     ofSetColor(255, 255, 255,200);
-    ofLine(x, y, x + cos(directionToFuji) *100  ,y - sin(directionToFuji)*100);
+    ofLine(x, y, x + cos(currentDirection) *100  ,y - sin(currentDirection)*100);
     //ofDrawBitmapString(ofToString(bid), x,y+50);
     
     ofSetColor(c);
@@ -78,6 +79,7 @@ int button::tapped(float _x, float _y){
     return -1;
 }
 
+//return radian
 double button::calcDirection(ofPoint *_p1, ofPoint *_p2){
     double v1[] = {100.0, 0};
     double v2[] = { _p2->x - _p1->x, _p2->y - _p1->y };

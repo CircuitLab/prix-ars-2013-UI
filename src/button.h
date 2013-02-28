@@ -12,6 +12,8 @@ protected:
     double currentDirection;
     double calcDirection(ofPoint *_p1, ofPoint *_p2);
     double viewAngle;
+    double latitude;
+    double longtitude;
     
 public:
 	button(float _x, float _y, int _bid, ofPoint _fuji, float _angle );
@@ -22,4 +24,6 @@ public:
     void setStatus(int _status);
     int getStatus();
     int getId();
+    void setCameraStatus(double _lat, double _lon);
+    ofPoint GPStoXY(double _lat,double _lon);
 };

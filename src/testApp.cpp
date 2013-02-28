@@ -62,7 +62,7 @@ void testApp::draw(){
     //drawUpdated();
     ofSetColor(255,255,255,180);
     fujiMap.draw(-350,-10, 1920 *1.4 , 907*1.4);
-    ofCircle(fujiPoint, 1);
+   // ofCircle(fujiPoint, 1);
     ofSetColor(255,255,255,255);
     for (int i = 0; i < taps.size(); i++){
         taps[i].draw();
@@ -74,6 +74,7 @@ void testApp::draw(){
         robos[i].draw();
     }
     
+  
 }
 
 //multi touch test
@@ -119,7 +120,7 @@ void testApp::tuioAdded(ofxTuioCursor &tuioCursor){
         }
     }
     
-	//cout << "Point n" << tuioCursor.getSessionId() << " add at " << loc << endl;
+//	cout << "Point n" << tuioCursor.getSessionId() << " add at " << loc << endl;
 }
 
 void testApp::tuioUpdated(ofxTuioCursor &tuioCursor){
@@ -172,6 +173,8 @@ void testApp::sendOSCtoDisplay(int _bid){
     m.addIntArg(_bid);
     toDisplay.sendMessage(m);
 }
+
+
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){

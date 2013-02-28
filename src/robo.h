@@ -2,7 +2,10 @@
 
 class robo: public button{
   private :
-   
+    string udid;
+    double robox,roboy,buttery;
+    bool living;
+    
   public:
     robo(float _x, float _y, int _bid, ofPoint _fuji, float angle);
     void draw();
@@ -11,4 +14,5 @@ class robo: public button{
     void dragAngle(float _, float _y);
     bool dragAngleEnded(float _, float _y);
     void setDefaultAngle();
+    void setRoboStatus(string _udid, double _lat, double _long, double _robox, double _roboy, double _buttery, bool _living );
 };

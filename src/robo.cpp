@@ -103,3 +103,17 @@ void robo::setDefaultAngle(){
     currentDirection = directionToFuji;
 }
 
+void robo::setRoboStatus(string _udid, double _lat, double _long, double _robox, double _roboy, double _buttery, bool _living){
+    udid = _udid;
+    latitude = _lat;
+    longtitude = _long;
+    robox = _robox;
+    roboy = _roboy;
+    buttery = _buttery;
+    living = _living;
+    ofPoint p = GPStoXY(latitude, longtitude);
+    x = p.x;
+    y = p.y;
+}
+
+

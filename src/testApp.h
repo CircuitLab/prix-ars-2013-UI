@@ -12,6 +12,9 @@
 #define SEVERHOST "127.0.0.1"
 #define SERVERPORT 5555
 
+// uncomment if you use Full HD display
+// #define FULL_HD_ENABLE
+
 class testApp : public ofBaseApp
 {
 public:

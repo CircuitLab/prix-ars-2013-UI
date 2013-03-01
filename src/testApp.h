@@ -12,7 +12,8 @@
 #define SEVERHOST "127.0.0.1"
 #define SERVERPORT 5555
 
-class testApp : public ofBaseApp{
+class testApp : public ofBaseApp
+{
 public:
     void setup();
     void update();

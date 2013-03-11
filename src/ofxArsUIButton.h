@@ -1,7 +1,8 @@
 #include "ofMain.h"
 
 
-class button{
+class ofxArsUIButton
+{
 protected:
     int status,bcnt,speed,tcnt; //status 0: not selected, 1:selected, 2: broken 
     ofImage mark,markShadow;
@@ -16,7 +17,7 @@ protected:
     double longtitude;
     
 public:
-	button(float _x, float _y, int _bid, ofPoint _fuji, float _angle );
+	ofxArsUIButton(float _x, float _y, int _bid, ofPoint _fuji, float _angle );
 	virtual void draw();
 	virtual void update();
 	virtual int tapped(float _x, float _y);

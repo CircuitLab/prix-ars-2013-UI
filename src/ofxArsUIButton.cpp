@@ -1,7 +1,7 @@
-#include "button.h"
+#include "ofxArsUIButton.h"
 #include "ofxEasingFunc.h"
 
-button::button(float _x, float _y, int _bid, ofPoint _fuji, float _angle){
+ofxArsUIButton::ofxArsUIButton(float _x, float _y, int _bid, ofPoint _fuji, float _angle){
 	x = _x;
 	y = _y;
     bid = _bid;
@@ -18,7 +18,7 @@ button::button(float _x, float _y, int _bid, ofPoint _fuji, float _angle){
     viewAngle = _angle;
 }
 
-void button::update(){
+void ofxArsUIButton::update(){
     
     float v = sinf((float)bcnt/speed * 2 * PI);
     radius = 30 + v*4;
@@ -26,7 +26,7 @@ void button::update(){
     if(bcnt == speed) bcnt =0;
 }
 
-void button::draw(){
+void ofxArsUIButton::draw(){
     //status: 0:default 1:select
     
     ofColor c;
@@ -70,7 +70,7 @@ void button::draw(){
     ofPopMatrix();
 }
 
-int button::tapped(float _x, float _y){
+int ofxArsUIButton::tapped(float _x, float _y){
     double distance =   sqrt( (double)((_x - x) * (_x - x) + (_y - y)*(_y - y))) ;
     if (distance < radius/2) {
         return bid;
@@ -79,7 +79,7 @@ int button::tapped(float _x, float _y){
 }
 
 //return radian
-double button::calcDirection(ofPoint *_p1, ofPoint *_p2){
+double ofxArsUIButton::calcDirection(ofPoint *_p1, ofPoint *_p2){
     double v1[] = {100.0, 0};
     double v2[] = { _p2->x - _p1->x, _p2->y - _p1->y };
     double cosTheta,theta,innerProduct;
@@ -92,21 +92,21 @@ double button::calcDirection(ofPoint *_p1, ofPoint *_p2){
     return theta;
 }
 
-void button::setAngle(float _angle){
+void ofxArsUIButton::setAngle(float _angle){
     viewAngle = _angle;
 }
 
-void button::setStatus(int _status){
+void ofxArsUIButton::setStatus(int _status){
     status = _status;
 }
-int button::getStatus(){
+int ofxArsUIButton::getStatus(){
     return bid;
 }
-int button::getId(){
+int ofxArsUIButton::getId(){
     return bid;
 }
 
-void button::setCameraStatus(double _lat, double _lon){
+void ofxArsUIButton::setCameraStatus(double _lat, double _lon){
     latitude = _lat;
     longtitude = _lon;
     ofPoint place = GPStoXY(_lat, _lon);
@@ -115,7 +115,7 @@ void button::setCameraStatus(double _lat, double _lon){
     
 }
 
-ofPoint button::GPStoXY(double _lat,double _lon){
+ofPoint ofxArsUIButton::GPStoXY(double _lat,double _lon){
     //calibration set
     //fuji benchmark (富士 中心)
     double fujiLat = 35.362841;

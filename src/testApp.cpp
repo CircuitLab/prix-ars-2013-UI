@@ -3,31 +3,34 @@
 //--------------------------------------------------------------
 void testApp::setup()
 {
-    ofBackground(0,0,0);
+    ofBackground(0, 0, 0);
     ofSetFrameRate(60);
     ofEnableSmoothing();
     ofSetBackgroundAuto(true);
     ofEnableAlphaBlending();
     ofSetCircleResolution(100);
+#ifdef FULL_HD_ENABLE
     ofHideCursor();
+#endif
     
     ofAddListener(tuioClient.cursorAdded, this, &testApp::tuioAdded);
 	ofAddListener(tuioClient.cursorRemoved, this, &testApp::tuioRemoved);
 	ofAddListener(tuioClient.cursorUpdated, this, &testApp::tuioUpdated);
     
     tuioClient.start(3333);
-    toDisplay.setup(DISPLAYHOST,DISPLAYPORT);
+    oscSenderToDisplay.setup(DISPLAY_HOST, DISPLAY_PORT);
+    
+    oscReceiverFromServer.setup(INCOMING_PORT);
+    ofAddListener(oscReceiverFromServer.onMessageReceived, this, &testApp::onOscMessageReceived);
     
     fujiPoint.set(964, 600);
     
     for (int i = 0; i < 10; ++i) {
-        button b(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60));
-        buttons.push_back(b);
+        buttons.push_back(ofxArsUIButton(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60)));
     }
     
-    for (int i = 10; i < 16; ++i) {
-        robo r(ofRandom(ofGetWidth()),ofRandom(ofGetHeight() -100),i,fujiPoint,ofRandom(20,60));
-        robos.push_back(r);
+    for (int i = 10; i < (10 + NUM_ROBOTS); ++i) {
+        robos.push_back(ofxArsUIRoboCam(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60)));
     }
     
     fujiMap.loadImage("map.png");
@@ -35,7 +38,9 @@ void testApp::setup()
     eye[0] = -1;
     eye[1] = -1;
     selectMode = 0;
-
+    
+    oscSenderToServer.setup(SERVER_HOST, SERVER_PORT);
+    sendInitToServer();
 }
 
 //--------------------------------------------------------------
@@ -47,7 +52,7 @@ void testApp::update()
         taps[i].update();
         
         if (false == taps[i].alive()) {
-            vector<tapped>::iterator it = taps.begin();
+            vector<ofxArsUITappedPoint>::iterator it = taps.begin();
             taps.erase(it + i);
         }
     }
@@ -113,7 +118,7 @@ void testApp::tuioAdded(ofxTuioCursor &tuioCursor)
 {
 	ofPoint loc = ofPoint(tuioCursor.getX() * ofGetWidth(), tuioCursor.getY() * ofGetHeight());
     
-    class tapped tap(loc.x, loc.y, tuioCursor.getFingerId());
+    class ofxArsUITappedPoint tap(loc.x, loc.y, tuioCursor.getFingerId());
     taps.push_back(tap);
     
     for (int i = 0; i < buttons.size(); ++i) {
@@ -122,7 +127,7 @@ void testApp::tuioAdded(ofxTuioCursor &tuioCursor)
         if (0 <= bid && bid != eye[0] && bid != eye[1]){
             setEye(bid);
             buttons[i].setStatus(1);
-            sendOSCtoDisplay(bid);
+            sendOSCToDisplay(bid);
         }
     }
     
@@ -132,7 +137,7 @@ void testApp::tuioAdded(ofxTuioCursor &tuioCursor)
         if (0 <= bid && bid != eye[0] && bid != eye[1]){
             setEye(bid);
             robos[i].setStatus(1);
-            sendOSCtoDisplay(bid);
+            sendOSCToDisplay(bid);
         }
     }
     
@@ -178,20 +183,89 @@ void testApp::setEye(int _bid)
     selectMode = !selectMode ? 1 : 0;
 }
 
-void testApp::sendOSCtoDisplay(int _bid)
+//--------------------------------------------------------------
+void testApp::getPictureFromURL(string url)
 {
-    ofxOscMessage m;
+    
+}
+
+//--------------------------------------------------------------
+void testApp::sendInitToServer()
+{
+    ofxOscMessage msg;
+    msg.setAddress("/gianteyes/hello");
+    msg.addIntArg(INCOMING_PORT);
+    oscSenderToServer.sendMessage(msg);
+}
+
+//--------------------------------------------------------------
+void testApp::sendViewpointToServer(int camId, int compass, int angle)
+{
+    ofxOscMessage msg;
+    msg.setAddress("/gianteyes/viewpoint");
+    msg.addIntArg(camId);
+    msg.addIntArg(compass);
+    msg.addIntArg(angle);
+    oscSenderToServer.sendMessage(msg);
+}
+
+//--------------------------------------------------------------
+void testApp::sendTakeTriggerToServer(int camId)
+{
+    ofxOscMessage msg;
+    msg.setAddress("/gianteyes/take");
+    msg.addIntArg(camId);
+    oscSenderToServer.sendMessage(msg);
+}
+
+//--------------------------------------------------------------
+void testApp::sendOSCToDisplay(int _bid)
+{
+    ofxOscMessage msg;
     
     if (1 == selectMode) {
-      m.setAddress("/right/image");
-      m.addStringArg("right file address");
+      msg.setAddress("/right/image");
+      msg.addStringArg("right file address");
     } else if (0 == selectMode)  {
-      m.setAddress("/left/image");
-      m.addStringArg("left file address");
+      msg.setAddress("/left/image");
+      msg.addStringArg("left file address");
     }
     
-    m.addIntArg(_bid);
-    toDisplay.sendMessage(m);
+    msg.addIntArg(_bid);
+    oscSenderToDisplay.sendMessage(msg);
+}
+
+//--------------------------------------------------------------
+void testApp::onOscMessageReceived(ofxOscMessage &msg)
+{
+    string addr = msg.getAddress();
+    
+    if ("/gianteyes/camera" == addr) {
+        int udid = msg.getArgAsInt32(0);
+        float lat = msg.getArgAsFloat(1);
+        float lon = msg.getArgAsFloat(2);
+        float compass = msg.getArgAsFloat(3);
+        int angle = msg.getArgAsInt32(4);
+        int battery = msg.getArgAsInt32(5);
+        int operable = msg.getArgAsInt32(6);
+        int living = msg.getArgAsInt32(7);
+    } else if ("/gianteyes/photo" == addr) {
+        int udid = msg.getArgAsInt32(0);
+        string url = msg.getArgAsString(1);
+        float correction = msg.getArgAsFloat(2);
+        float lat = msg.getArgAsFloat(3);
+        float lon = msg.getArgAsFloat(4);
+        float compass = msg.getArgAsFloat(5);
+        int angle = msg.getArgAsInt32(6);
+        
+        getPictureFromURL(url);
+    } else if ("/gianteyes/cameras" == addr) {
+        string jsonString = msg.getArgAsString(0);
+        
+        if (0 < jsonString.length()) {
+            json.parse(jsonString);
+        }
+    }
 }
 
 
@@ -204,7 +278,7 @@ void testApp::keyPressed(int key){
 //--------------------------------------------------------------
 void testApp::keyReleased(int key){
     if(key == ' '){
-        ofBackground(255,255,255);
+        ofBackground(255, 255, 255);
     }
 }
 

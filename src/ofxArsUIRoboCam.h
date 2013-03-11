@@ -1,15 +1,17 @@
-#include "button.h"
+#include "ofxArsUIButton.h"
 
-class robo: public button{
-  private :
+class ofxArsUIRoboCam: public ofxArsUIButton
+{
+  private:
     string udid;
-    double robox,roboy,buttery;
+    double xpos, ypos, buttery;
     bool living;
     
   public:
-    robo(float _x, float _y, int _bid, ofPoint _fuji, float angle);
+    ofxArsUIRoboCam(float _x, float _y, int _bid, ofPoint _fuji, float angle);
     void draw();
     void update();
+    
     int tapped(float _x, float _y);
     void dragAngle(float _, float _y);
     bool dragAngleEnded(float _, float _y);

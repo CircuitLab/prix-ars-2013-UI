@@ -2,15 +2,23 @@
 
 #include "ofMain.h"
 #include "ofxTuioClient.h"
-#include "tapped.h"
-//#include "button.h"
-#include "robo.h"
+#include "ofxArsUITappedPoint.h"
+//#include "ofxArsUIButton.h"
+#include "ofxArsUIRoboCam.h"
+#include "ofxJSONElement.h"
 
-#define DISPLAYHOST "127.0.0.1"
-#define DISPLAYPORT 4444
+#define DISPLAY_HOST "127.0.0.1"
+#define DISPLAY_PORT 4444
 
-#define SEVERHOST "127.0.0.1"
-#define SERVERPORT 5555
+#define SERVER_HOST "127.0.0.1"
+#define SERVER_PORT 5555
+
+#define INCOMING_PORT 6666
+
+#define NUM_ROBOTS 2
+#define COM_ID_1 0
+#define COM_ID_2 1
+
 
 // uncomment if you use Full HD display
 // #define FULL_HD_ENABLE
@@ -38,9 +46,9 @@ public:
     void drawUpdated();
     
     ofxTuioClient   tuioClient;
-    vector <tapped> taps; // tap expression
-    vector <button> buttons; // web camera
-    vector <robo> robos; // robot
+    vector <ofxArsUITappedPoint> taps; // tap expression
+    vector <ofxArsUIButton> buttons; // web camera
+    vector <ofxArsUIRoboCam> robos; // robot
     
     ofImage fujiMap;
     ofPoint fujiPoint;
@@ -49,11 +57,20 @@ public:
     int selectMode;//0:select right eye, 1:select left eye
     void setEye(int _bid);
     
-    ofxOscSender toDisplay;
-    void sendOSCtoDisplay(int _bid);
+    ofxOscSender oscSenderToDisplay;
+    ofxOscSender oscSenderToServer;
+    ofxOscReceiver oscReceiverFromServer;
     
-    ofxOscSender toServer;
-    ofxOscReceiver fromServer;
-    string rightImageFile,leftImageFile;
+    void onOscMessageReceived(ofxOscMessage &msg);
     
+    void sendInitToServer();
+    void sendViewpointToServer(int camId, int compass, int angle);
+    void sendTakeTriggerToServer(int camId);
+    void sendOSCToDisplay(int _bid);
+    
+    
+    string rightImageFile, leftImageFile;
+    void getPictureFromURL(string url);
+    
+    ofxJSONElement json;
 };

@@ -6,30 +6,31 @@
 //
 //
 
-#include "MapControlState.h"
+#include "ArsUIMapControlState.h"
 
 //--------------------------------------------------------------
-MapControlState::MapControlState()
+ArsUIMapControlState::ArsUIMapControlState()
 {
     init();
 }
 
 //--------------------------------------------------------------
-MapControlState::~MapControlState()
+ArsUIMapControlState::~ArsUIMapControlState()
 {
     
 }
 
 //--------------------------------------------------------------
-void MapControlState::init()
+void ArsUIMapControlState::init()
 {
-    
+    setupGUI();
+    // gui->setDrawBack(false);
 }
 
 //--------------------------------------------------------------
-void MapControlState::stateEnter()
+void ArsUIMapControlState::stateEnter()
 {
-    fujiPoint.set(964, 600);
+    fujiPoint.set(532.16, 633.19);
     
     for (int i = 0; i < 10; ++i) {
         buttons.push_back(ArsUIButton(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60)));
@@ -39,33 +40,33 @@ void MapControlState::stateEnter()
         robos.push_back(ArsUIRoboCam(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60)));
     }
     
-    fujiMap.loadImage("map.png");
-    
     eye[0] = -1;
     eye[1] = -1;
     selectedMode = 0;
     
-    ofAddListener(getSharedData().tuioClient.cursorAdded, this, &MapControlState::tuioAdded);
-	ofAddListener(getSharedData().tuioClient.cursorRemoved, this, &MapControlState::tuioRemoved);
-	ofAddListener(getSharedData().tuioClient.cursorUpdated, this, &MapControlState::tuioUpdated);
-    ofAddListener(getSharedData().oscReceiverFromServer.onMessageReceived, this, &MapControlState::onOscMessageReceived);
+    fujiMap.loadImage("map.png");
+    
+    ofAddListener(getSharedData().tuioClient.cursorAdded, this, &ArsUIMapControlState::tuioAdded);
+	ofAddListener(getSharedData().tuioClient.cursorRemoved, this, &ArsUIMapControlState::tuioRemoved);
+	ofAddListener(getSharedData().tuioClient.cursorUpdated, this, &ArsUIMapControlState::tuioUpdated);
+    ofAddListener(getSharedData().oscReceiverFromServer.onMessageReceived, this, &ArsUIMapControlState::onOscMessageReceived);
 }
 
 //--------------------------------------------------------------
-void MapControlState::stateExit()
+void ArsUIMapControlState::stateExit()
 {
     buttons.clear();
     robos.clear();
     fujiMap.clear();
     
-    ofRemoveListener(getSharedData().tuioClient.cursorAdded, this, &MapControlState::tuioAdded);
-	ofRemoveListener(getSharedData().tuioClient.cursorRemoved, this, &MapControlState::tuioRemoved);
-	ofRemoveListener(getSharedData().tuioClient.cursorUpdated, this, &MapControlState::tuioUpdated);
-    ofRemoveListener(getSharedData().oscReceiverFromServer.onMessageReceived, this, &MapControlState::onOscMessageReceived);
+    ofRemoveListener(getSharedData().tuioClient.cursorAdded, this, &ArsUIMapControlState::tuioAdded);
+	ofRemoveListener(getSharedData().tuioClient.cursorRemoved, this, &ArsUIMapControlState::tuioRemoved);
+	ofRemoveListener(getSharedData().tuioClient.cursorUpdated, this, &ArsUIMapControlState::tuioUpdated);
+    ofRemoveListener(getSharedData().oscReceiverFromServer.onMessageReceived, this, &ArsUIMapControlState::onOscMessageReceived);
 }
 
 //--------------------------------------------------------------
-void MapControlState::update()
+void ArsUIMapControlState::update()
 {
     getSharedData().tuioClient.getMessage();
     
@@ -88,13 +89,13 @@ void MapControlState::update()
 }
 
 //--------------------------------------------------------------
-void MapControlState::draw()
+void ArsUIMapControlState::draw()
 {
     // tuioClient.drawCursors();
     //drawUpdated();
     
-    ofSetColor(255, 255, 255, 180);
-    fujiMap.draw(-350, -10, 1920 * 1.4 , 907 * 1.4);
+    ofSetColor(255, 255, 255);
+    fujiMap.draw(-350, -10, 1920 * 1.4, 907 * 1.4);
     
     // ofCircle(fujiPoint, 1);
     
@@ -114,13 +115,51 @@ void MapControlState::draw()
 }
 
 //--------------------------------------------------------------
-string MapControlState::getName()
+string ArsUIMapControlState::getName()
 {
     return "map";
 }
 
 //--------------------------------------------------------------
-void MapControlState::setEye(int bid)
+void ArsUIMapControlState::keyPressed(int key)
+{
+    
+}
+
+//--------------------------------------------------------------
+void ArsUIMapControlState::keyReleased(int key)
+{
+    
+}
+
+//--------------------------------------------------------------
+void ArsUIMapControlState::mousePressed(int x, int y, int button)
+{
+    
+}
+
+//--------------------------------------------------------------
+void ArsUIMapControlState::mouseDragged(int x, int y, int button)
+{
+    
+}
+
+//--------------------------------------------------------------
+void ArsUIMapControlState::setupGUI()
+{
+    gui = new ofxUICanvas(0, 0, GUI_CANVAS_WIDTH, GUI_CANVAS_HEIGHT);
+    gui->setColorBack(ofColor(255, 255, 255, 127));
+    gui->setColorFill(ofColor(0));
+    gui->addWidgetDown(new ofxUILabel("CONTROL PANEL", OFX_UI_FONT_LARGE));
+    gui->addSpacer();
+    gui->addFPSSlider("FPS SLIDER", GUI_CANVAS_WIDTH - 10, 18, 60);
+    gui->addSpacer();
+    gui->addWidgetDown(new ofxUILabel("FUJI POSITION", OFX_UI_FONT_MEDIUM));
+    gui->autoSizeToFitWidgets();
+}
+
+//--------------------------------------------------------------
+void ArsUIMapControlState::setEye(int bid)
 {
     int oldMode = eye[selectedMode];
     
@@ -144,7 +183,7 @@ void MapControlState::setEye(int bid)
 }
 
 //--------------------------------------------------------------
-void MapControlState::tuioAdded(ofxTuioCursor &tuioCursor)
+void ArsUIMapControlState::tuioAdded(ofxTuioCursor &tuioCursor)
 {
     ofPoint loc = ofPoint(tuioCursor.getX() * ofGetWidth(), tuioCursor.getY() * ofGetHeight());
     
@@ -175,14 +214,14 @@ void MapControlState::tuioAdded(ofxTuioCursor &tuioCursor)
 }
 
 //--------------------------------------------------------------
-void MapControlState::tuioRemoved(ofxTuioCursor &tuioCursor)
+void ArsUIMapControlState::tuioRemoved(ofxTuioCursor &tuioCursor)
 {
     ofPoint loc = ofPoint(tuioCursor.getX() * ofGetWidth(), tuioCursor.getY() * ofGetHeight());
 	//cout << "Point n" << tuioCursor.getSessionId() << " remove at " << loc << endl;
 }
 
 //--------------------------------------------------------------
-void MapControlState::tuioUpdated(ofxTuioCursor &tuioCursor)
+void ArsUIMapControlState::tuioUpdated(ofxTuioCursor &tuioCursor)
 {
     ofPoint loc = ofPoint(tuioCursor.getX() * ofGetWidth(), tuioCursor.getY() * ofGetHeight());
 	//cout << "Point n" << tuioCursor.getSessionId() << " updated at " << loc << endl;
@@ -193,7 +232,7 @@ void MapControlState::tuioUpdated(ofxTuioCursor &tuioCursor)
 }
 
 //--------------------------------------------------------------
-void MapControlState::drawTuioCursors()
+void ArsUIMapControlState::drawTuioCursors()
 {
     list<ofxTuioCursor*> cursorList = getSharedData().tuioClient.getTuioCursors();
     
@@ -214,7 +253,7 @@ void MapControlState::drawTuioCursors()
 }
 
 //--------------------------------------------------------------
-void MapControlState::onOscMessageReceived(ofxOscMessage &msg)
+void ArsUIMapControlState::onOscMessageReceived(ofxOscMessage &msg)
 {
     string addr = msg.getAddress();
     
@@ -247,13 +286,13 @@ void MapControlState::onOscMessageReceived(ofxOscMessage &msg)
 }
 
 //--------------------------------------------------------------
-void MapControlState::getPictureFromURL(string url)
+void ArsUIMapControlState::getPictureFromURL(string url)
 {
     
 }
 
 //--------------------------------------------------------------
-void MapControlState::sendViewpointToServer(int camId, int compass, int angle)
+void ArsUIMapControlState::sendViewpointToServer(int camId, int compass, int angle)
 {
     ofxOscMessage msg;
     msg.setAddress("/gianteyes/viewpoint");
@@ -264,7 +303,7 @@ void MapControlState::sendViewpointToServer(int camId, int compass, int angle)
 }
 
 //--------------------------------------------------------------
-void MapControlState::sendTakeTriggerToServer(int camId)
+void ArsUIMapControlState::sendTakeTriggerToServer(int camId)
 {
     ofxOscMessage msg;
     msg.setAddress("/gianteyes/take");
@@ -273,7 +312,7 @@ void MapControlState::sendTakeTriggerToServer(int camId)
 }
 
 //--------------------------------------------------------------
-void MapControlState::sendOSCToDisplay(int bid)
+void ArsUIMapControlState::sendOSCToDisplay(int bid)
 {
     ofxOscMessage msg;
     
@@ -287,4 +326,10 @@ void MapControlState::sendOSCToDisplay(int bid)
     
     msg.addIntArg(bid);
     getSharedData().oscSenderToDisplay.sendMessage(msg);
+}
+
+//--------------------------------------------------------------
+void ArsUIMapControlState::guiEvent(ofxUIEventArgs &e)
+{
+    
 }

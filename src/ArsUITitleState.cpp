@@ -6,28 +6,28 @@
 //
 //
 
-#include "TitleState.h"
+#include "ArsUITitleState.h"
 
 //--------------------------------------------------------------
-TitleState::TitleState()
+ArsUITitleState::ArsUITitleState()
 {
     init();
 }
 
 //--------------------------------------------------------------
-TitleState::~TitleState()
+ArsUITitleState::~ArsUITitleState()
 {
     
 }
 
 //--------------------------------------------------------------
-void TitleState::init()
+void ArsUITitleState::init()
 {
     
 }
 
 //--------------------------------------------------------------
-void TitleState::stateEnter()
+void ArsUITitleState::stateEnter()
 {
     cout << "incoming port: " << getSharedData().incomingPort << endl;
     ofxOscMessage msg;
@@ -37,25 +37,25 @@ void TitleState::stateEnter()
 }
 
 //--------------------------------------------------------------
-void TitleState::stateExit()
+void ArsUITitleState::stateExit()
 {
     
 }
 
 //--------------------------------------------------------------
-void TitleState::update()
+void ArsUITitleState::update()
 {
     
 }
 
 //--------------------------------------------------------------
-void TitleState::draw()
+void ArsUITitleState::draw()
 {
     
 }
 
 //--------------------------------------------------------------
-string TitleState::getName()
+string ArsUITitleState::getName()
 {
     return "title";
 }

@@ -123,7 +123,7 @@ ofPoint ArsUIButton::GPStoXY(double _lat,double _lon){
     //yamanakako bench (旭日丘 交差点)
     double yamanakaLat = 35.407591;
     double yamanakaLon = 138.876039;
-    ofPoint yamanaka = ofPoint(1263,489);
+    ofPoint yamanaka = ofPoint(1263, 489);
     
     ofPoint newPoint;
     

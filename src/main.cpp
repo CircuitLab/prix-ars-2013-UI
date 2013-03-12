@@ -8,7 +8,7 @@ int main(){
 # ifdef FULL_HD_ENABLE
     ofSetupOpenGL(&window, 1920, 1080, OF_FULLSCREEN);
 # else
-    ofSetupOpenGL(&window, 1000, 800, OF_WINDOW);
+    ofSetupOpenGL(&window, 1440, 800, OF_WINDOW);
 # endif
 	ofRunApp(new testApp()); // start the app
 }

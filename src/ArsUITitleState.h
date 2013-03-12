@@ -14,11 +14,11 @@
 #include "ArsUISharedData.h"
 #include "ofxOsc.h"
 
-class TitleState : public Apex::ofxState<ArsUISharedData>
+class ArsUITitleState : public Apex::ofxState<ArsUISharedData>
 {
 public:
-    TitleState();
-    ~TitleState();
+    ArsUITitleState();
+    ~ArsUITitleState();
     
     void stateEnter();
     void stateExit();
@@ -28,6 +28,8 @@ public:
     
 private:
     void init();
+    
+    ofTrueTypeFont font;
     
 };
 

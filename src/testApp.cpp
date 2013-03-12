@@ -1,6 +1,6 @@
 #include "testApp.h"
-#include "TitleState.h"
-#include "MapControlState.h"
+#include "ArsUITitleState.h"
+#include "ArsUIMapControlState.h"
 
 //--------------------------------------------------------------
 void testApp::initOSC()
@@ -13,8 +13,8 @@ void testApp::initOSC()
 //--------------------------------------------------------------
 void testApp::initState()
 {
-    stateMachine.addState(new TitleState());
-    stateMachine.addState(new MapControlState());
+    stateMachine.addState(new ArsUITitleState());
+    stateMachine.addState(new ArsUIMapControlState());
     stateMachine.changeState("map");
 }
 

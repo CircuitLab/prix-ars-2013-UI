@@ -9,24 +9,34 @@
 #ifndef arsUI_MapControlState_h
 #define arsUI_MapControlState_h
 
+#define GUI_CANVAS_WIDTH 350
+#define GUI_CANVAS_HEIGHT ofGetHeight()
+
 #include "ofxState.h"
 #include "ofxXmlSettings.h"
 #include "ArsUISharedData.h"
 #include "ofxTween.h"
 #include "ArsUIRoboCam.h"
 #include "ofxJSONElement.h"
+#include "ofxUI.h"
+#include "ArsUIUtil.h"
 
-class MapControlState : public Apex::ofxState<ArsUISharedData>
+class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
 {
     public:
-        MapControlState();
-        ~MapControlState();
+        ArsUIMapControlState();
+        ~ArsUIMapControlState();
         
         void stateEnter();
         void stateExit();
         void update();
         void draw();
         string getName();
+    
+        void keyPressed(int key);
+        void keyReleased(int key);
+        void mousePressed(int x, int y, int button);
+        void mouseDragged(int x, int y, int button);
         
     private:
         void init();
@@ -56,6 +66,10 @@ class MapControlState : public Apex::ofxState<ArsUISharedData>
 
         string rightImageFile, leftImageFile;
         void getPictureFromURL(string url);
+    
+        void setupGUI();
+        ofxUICanvas *gui;
+        void guiEvent(ofxUIEventArgs &e);
 };
 
 #endif

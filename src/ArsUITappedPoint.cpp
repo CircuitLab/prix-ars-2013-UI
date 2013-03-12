@@ -6,10 +6,10 @@
 //
 //
 
-#include "ofxArsUITappedPoint.h"
+#include "ArsUITappedPoint.h"
 #include "ofxEasingFunc.h"
 
-ofxArsUITappedPoint::ofxArsUITappedPoint(float _x, float _y, int tid)
+ArsUITappedPoint::ArsUITappedPoint(float _x, float _y, int tid)
 {
 	x = _x;
 	y = _y;
@@ -20,7 +20,7 @@ ofxArsUITappedPoint::ofxArsUITappedPoint(float _x, float _y, int tid)
     tapid = tid;
 }
 
-void ofxArsUITappedPoint::update()
+void ArsUITappedPoint::update()
 {
     float v = ofxEasingFunc::Circ::easeOut((float)tcnt / cntmax);
     //cout << " v " << v;
@@ -29,7 +29,7 @@ void ofxArsUITappedPoint::update()
 	tcnt++;
 }
 
-void ofxArsUITappedPoint::draw()
+void ArsUITappedPoint::draw()
 {
 	ofSetColor(51, 205, 255, alpha);
     //cout<< " alpha " << alpha << " radius " << radius ;
@@ -37,7 +37,7 @@ void ofxArsUITappedPoint::draw()
 	ofSetColor(255, 255, 255, 255);
 }
 
-bool ofxArsUITappedPoint::alive()
+bool ArsUITappedPoint::alive()
 {
 	return tcnt <= cntmax ;
     

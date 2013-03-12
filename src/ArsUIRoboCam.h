@@ -1,6 +1,6 @@
-#include "ofxArsUIButton.h"
+#include "ArsUIButton.h"
 
-class ofxArsUIRoboCam: public ofxArsUIButton
+class ArsUIRoboCam: public ArsUIButton
 {
   private:
     string udid;
@@ -8,7 +8,7 @@ class ofxArsUIRoboCam: public ofxArsUIButton
     bool living;
     
   public:
-    ofxArsUIRoboCam(float _x, float _y, int _bid, ofPoint _fuji, float angle);
+    ArsUIRoboCam(float _x, float _y, int _bid, ofPoint _fuji, float angle);
     void draw();
     void update();
     

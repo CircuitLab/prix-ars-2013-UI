@@ -1,14 +1,14 @@
-#include "ofxArsUIRoboCam.h"
+#include "ArsUIRoboCam.h"
 
-ofxArsUIRoboCam::ofxArsUIRoboCam(float _x, float _y, int _bid, ofPoint _fuji,float _angle):ofxArsUIButton(_x,_y,_bid,_fuji,_angle){
-    ofxArsUIButton::mark.loadImage("markyellow.png");
+ArsUIRoboCam::ArsUIRoboCam(float _x, float _y, int _bid, ofPoint _fuji,float _angle):ArsUIButton(_x,_y,_bid,_fuji,_angle){
+    ArsUIButton::mark.loadImage("markyellow.png");
 }
 
-void ofxArsUIRoboCam::update(){
-  ofxArsUIButton::update();
+void ArsUIRoboCam::update(){
+    ArsUIButton::update();
 }
 
-void ofxArsUIRoboCam::draw(){
+void ArsUIRoboCam::draw(){
     //status: 0:default 1:select
     
     ofColor c;
@@ -66,21 +66,21 @@ void ofxArsUIRoboCam::draw(){
 
 }
 
-int ofxArsUIRoboCam::tapped(float _x, float _y){
-   int _bid = ofxArsUIButton::tapped(_x,_y);
+int ArsUIRoboCam::tapped(float _x, float _y){
+   int _bid = ArsUIButton::tapped(_x,_y);
     if (_bid != -1 && status ==1){
         setDefaultAngle();
     }
     return _bid;
 }
 
-void ofxArsUIRoboCam::dragAngle(float _x, float _y){
+void ArsUIRoboCam::dragAngle(float _x, float _y){
     if(status == 1){
         float distance = sqrt((x - _x) * (x - _x) + (y - _y) *(y - _y) );
         if (distance  > radius && distance < radius *1.5) {
             ofPoint p1 = ofPoint(x,y);
             ofPoint p2 = ofPoint(_x,_y);
-            float newAngle = ofxArsUIButton::calcDirection(&p1,&p2);
+            float newAngle = ArsUIButton::calcDirection(&p1,&p2);
         //    if(newAngle < directionToFuji + 0.8 && newAngle > directionToFuji - 0.8 ){
                 currentDirection = newAngle;
           //  }
@@ -88,7 +88,7 @@ void ofxArsUIRoboCam::dragAngle(float _x, float _y){
     }
 }
 
-bool ofxArsUIRoboCam::dragAngleEnded (float _x, float _y){
+bool ArsUIRoboCam::dragAngleEnded (float _x, float _y){
     if(status == 1){
         float distance = sqrt((x - _x) * (x - _x) + (y - _y) *(y - _y) );
         if (distance  > radius && distance < radius *1.5) {
@@ -99,11 +99,11 @@ bool ofxArsUIRoboCam::dragAngleEnded (float _x, float _y){
     return false;
 }
 
-void ofxArsUIRoboCam::setDefaultAngle(){
+void ArsUIRoboCam::setDefaultAngle(){
     currentDirection = directionToFuji;
 }
 
-void ofxArsUIRoboCam::setRoboStatus(string _udid, double _lat, double _long, double _robox, double _roboy, double _buttery, bool _living){
+void ArsUIRoboCam::setRoboStatus(string _udid, double _lat, double _long, double _robox, double _roboy, double _buttery, bool _living){
     udid = _udid;
     latitude = _lat;
     longtitude = _long;

@@ -4,9 +4,9 @@
 class ArsUIButton
 {
     protected:
-        int status,bcnt,speed,tcnt; //status 0: not selected, 1:selected, 2: broken 
-        ofImage mark,markShadow;
-        float x,y,radius;
+        int status, bcnt, speed, tcnt; //status 0: not selected, 1:selected, 2: broken 
+        ofImage mark, markShadow;
+        float x, y, radius;
         int bid;
         ofPoint fuji;
         double directionToFuji; //radian
@@ -21,6 +21,10 @@ class ArsUIButton
         virtual void draw();
         virtual void update();
         virtual int tapped(float _x, float _y);
+    
+        void setPosition(ofPoint pos);
+        ofPoint getPosition();
+    
         void setAngle(float _angle);
         void setStatus(int _status);
         int getStatus();

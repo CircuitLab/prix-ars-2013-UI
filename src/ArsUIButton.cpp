@@ -34,24 +34,24 @@ void ArsUIButton::draw(){
     ofColor c1(255,255,255,255);
     ofColor c2(0,0,0,200);
     
-    float distanceToFuji = sqrt((x-fuji.x)*(x-fuji.x) + (y-fuji.y)*(y-fuji.y));
-    distanceToFuji +=100;
+    float distanceToFuji = sqrt((x - fuji.x) * (x - fuji.x) + (y - fuji.y) * (y - fuji.y));
+    distanceToFuji += 100;
     ofPath path;
     path.setCurveResolution(120);
     path.setColor( ofColor(50, 200, 255,40));
     path.moveTo(x,y);
-    float angle1 = 360 -( 360 * currentDirection/(PI*2) + viewAngle/2) ;
-    float angle2 = 360 - (360 * currentDirection/(PI*2) - viewAngle/2) ;
-    path.arc(x,y,distanceToFuji,distanceToFuji,angle1,angle2);
+    float angle1 = 360 - (360 * currentDirection / (PI * 2) + viewAngle / 2) ;
+    float angle2 = 360 - (360 * currentDirection / (PI * 2) - viewAngle / 2) ;
+    path.arc(x, y, distanceToFuji, distanceToFuji, angle1, angle2);
     
     
-    if(status ==0){
+    if(status == 0){
         c = c0;
     }else if (status == 1){
         c = c1;
         radius *= 2;
          path.draw();
-    }else if (status ==2){
+    }else if (status == 2){
         c = c2;
     }
     
@@ -78,8 +78,20 @@ int ArsUIButton::tapped(float _x, float _y){
     return -1;
 }
 
+void ArsUIButton::setPosition(ofPoint pos)
+{
+    x = pos.x;
+    y = pos.y;
+}
+
+ofPoint ArsUIButton::getPosition()
+{
+    return ofPoint(x, y);
+}
+
 //return radian
-double ArsUIButton::calcDirection(ofPoint *_p1, ofPoint *_p2){
+double ArsUIButton::calcDirection(ofPoint *_p1, ofPoint *_p2)
+{
     double v1[] = {100.0, 0};
     double v2[] = { _p2->x - _p1->x, _p2->y - _p1->y };
     double cosTheta,theta,innerProduct;

@@ -9,7 +9,7 @@
 #ifndef arsUI_MapControlState_h
 #define arsUI_MapControlState_h
 
-#define GUI_CANVAS_WIDTH 350
+#define GUI_CANVAS_WIDTH 200
 #define GUI_CANVAS_HEIGHT ofGetHeight()
 
 #include "ofxState.h"
@@ -20,6 +20,7 @@
 #include "ofxJSONElement.h"
 #include "ofxUI.h"
 #include "ArsUIUtil.h"
+#include "ofxTimer.h"
 
 class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
 {
@@ -57,7 +58,9 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
     
         ofImage fujiMap;
         ofPoint fujiPoint;
-        
+    
+        ofPoint cam1Position, cam2Position;
+    
         int eye[2]; //0:right 1:left
         int selectedMode;//0:select right eye, 1:select left eye
         void setEye(int bid);
@@ -70,6 +73,11 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
         void setupGUI();
         ofxUICanvas *gui;
         void guiEvent(ofxUIEventArgs &e);
+    
+        ofxTimer timer;
+        void timerReached(ofEventArgs &e);
+        ofPoint initialTouchPoint, lastTouchPoint;
+        bool isCam1Draggable, isCam2Draggable;
 };
 
 #endif

@@ -6,6 +6,7 @@ ArsUIRoboCam::ArsUIRoboCam(float _x, float _y, int _bid, ofPoint _fuji,float _an
 
 void ArsUIRoboCam::update(){
     ArsUIButton::update();
+    dragAngle(x, y);
 }
 
 void ArsUIRoboCam::draw(){
@@ -24,12 +25,12 @@ void ArsUIRoboCam::draw(){
     path.setCurveResolution(60);
     path.setColor( ofColor(255, 255, 0,40));
     path.moveTo(x,y);
-    float angle1 = 360 -( 360 * currentDirection/(PI*2) + viewAngle/2) ;
+    float angle1 = 360 - (360 * currentDirection/(PI*2) + viewAngle/2) ;
     float angle2 = 360 - (360 * currentDirection/(PI*2) - viewAngle/2) ;
-    path.arc(x,y,distanceToFuji,distanceToFuji,angle1,angle2);
+    path.arc(x, y, distanceToFuji, distanceToFuji, angle1, angle2);
     
     
-    if(status ==0){
+    if(status == 0){
         c = c0;
     }else if (status == 1){
         c = c1;
@@ -38,8 +39,8 @@ void ArsUIRoboCam::draw(){
         path.draw();
     }
     
-    ofSetColor(255, 255, 255,200);
-    ofLine(x, y, x + cos(currentDirection) *lineLength  ,y - sin(currentDirection)*lineLength);
+    ofSetColor(255, 255, 255, 200);
+    ofLine(x, y, x + cos(currentDirection) * lineLength, y - sin(currentDirection) * lineLength);
      //ofDrawBitmapString(ofToString(bid), x,y+50);
     
     ofSetColor(c);
@@ -66,8 +67,10 @@ void ArsUIRoboCam::draw(){
 
 }
 
-int ArsUIRoboCam::tapped(float _x, float _y){
-   int _bid = ArsUIButton::tapped(_x,_y);
+int ArsUIRoboCam::tapped(float _x, float _y)
+{
+    int _bid = ArsUIButton::tapped(_x, _y);
+   
     if (_bid != -1 && status ==1){
         setDefaultAngle();
     }

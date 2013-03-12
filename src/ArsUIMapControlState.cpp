@@ -40,6 +40,9 @@ void ArsUIMapControlState::stateEnter()
         robos.push_back(ArsUIRoboCam(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60)));
     }
     
+    cam1Position = ofPoint(robos[0].getPosition().x, robos[0].getPosition().y);
+    cam2Position = ofPoint(robos[1].getPosition().x, robos[1].getPosition().y);
+    
     eye[0] = -1;
     eye[1] = -1;
     selectedMode = 0;
@@ -50,6 +53,8 @@ void ArsUIMapControlState::stateEnter()
 	ofAddListener(getSharedData().tuioClient.cursorRemoved, this, &ArsUIMapControlState::tuioRemoved);
 	ofAddListener(getSharedData().tuioClient.cursorUpdated, this, &ArsUIMapControlState::tuioUpdated);
     ofAddListener(getSharedData().oscReceiverFromServer.onMessageReceived, this, &ArsUIMapControlState::onOscMessageReceived);
+    
+    ofAddListener(timer.TIMER_REACHED, this, &ArsUIMapControlState::timerReached);
 }
 
 //--------------------------------------------------------------
@@ -63,6 +68,10 @@ void ArsUIMapControlState::stateExit()
 	ofRemoveListener(getSharedData().tuioClient.cursorRemoved, this, &ArsUIMapControlState::tuioRemoved);
 	ofRemoveListener(getSharedData().tuioClient.cursorUpdated, this, &ArsUIMapControlState::tuioUpdated);
     ofRemoveListener(getSharedData().oscReceiverFromServer.onMessageReceived, this, &ArsUIMapControlState::onOscMessageReceived);
+    
+    ofRemoveListener(timer.TIMER_REACHED, this, &ArsUIMapControlState::timerReached);
+    timer.stopTimer();
+    timer.~ofxTimer();
 }
 
 //--------------------------------------------------------------
@@ -83,9 +92,10 @@ void ArsUIMapControlState::update()
         buttons[i].update();
     }
     
-    for (int i = 0; i < robos.size(); ++i) {
-        robos[i].update();
-    }
+    robos[0].setPosition(cam1Position);
+    robos[1].setPosition(cam2Position);
+    robos[0].update();
+    robos[1].update();
 }
 
 //--------------------------------------------------------------
@@ -187,6 +197,14 @@ void ArsUIMapControlState::tuioAdded(ofxTuioCursor &tuioCursor)
 {
     ofPoint loc = ofPoint(tuioCursor.getX() * ofGetWidth(), tuioCursor.getY() * ofGetHeight());
     
+    cout << "TUIO added, x: " << loc.x << ", y: " << loc.y << endl;
+    
+    initialTouchPoint = loc;
+    lastTouchPoint = initialTouchPoint;
+    
+    timer.setup(1000, false);
+    timer.startTimer();
+    
     ArsUITappedPoint tappedPoint(loc.x, loc.y, tuioCursor.getFingerId());
     getSharedData().tappedPoints.push_back(tappedPoint);
     
@@ -217,13 +235,19 @@ void ArsUIMapControlState::tuioAdded(ofxTuioCursor &tuioCursor)
 void ArsUIMapControlState::tuioRemoved(ofxTuioCursor &tuioCursor)
 {
     ofPoint loc = ofPoint(tuioCursor.getX() * ofGetWidth(), tuioCursor.getY() * ofGetHeight());
+    cout << "TUIO removed, id: " << tuioCursor.getFingerId() << endl;
 	//cout << "Point n" << tuioCursor.getSessionId() << " remove at " << loc << endl;
+    
+    timer.stopTimer();
 }
 
 //--------------------------------------------------------------
 void ArsUIMapControlState::tuioUpdated(ofxTuioCursor &tuioCursor)
 {
     ofPoint loc = ofPoint(tuioCursor.getX() * ofGetWidth(), tuioCursor.getY() * ofGetHeight());
+    
+    lastTouchPoint = loc;
+    
 	//cout << "Point n" << tuioCursor.getSessionId() << " updated at " << loc << endl;
     
     for (int i = 0; i < robos.size(); ++i) {
@@ -332,4 +356,27 @@ void ArsUIMapControlState::sendOSCToDisplay(int bid)
 void ArsUIMapControlState::guiEvent(ofxUIEventArgs &e)
 {
     
+}
+
+//--------------------------------------------------------------
+void ArsUIMapControlState::timerReached(ofEventArgs &e)
+{
+    if (lastTouchPoint.x < initialTouchPoint.x + 5 &&
+        lastTouchPoint.y < initialTouchPoint.y + 5 &&
+        lastTouchPoint.x > initialTouchPoint.x - 5 &&
+        lastTouchPoint.y > initialTouchPoint.y - 5) {
+        cout << "hold" << endl;
+        ArsUITappedPoint tappedPoint(lastTouchPoint.x, lastTouchPoint.y, 0);
+        getSharedData().tappedPoints.push_back(tappedPoint);
+        
+        float dist1 = lastTouchPoint.distance(robos[0].getPosition());
+        float dist2 = lastTouchPoint.distance(robos[1].getPosition());
+        
+        if (dist1 < dist2) {
+            isCam1Draggable = true;
+        } else {
+            isCam2Draggable = true;
+        }
+        
+    }
 }

@@ -45,6 +45,7 @@
 		AB27023516EECF4C000AC44E /* ofxEasingQuint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB27022116EECF4C000AC44E /* ofxEasingQuint.cpp */; };
 		AB27023616EECF4C000AC44E /* ofxEasingSine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB27022316EECF4C000AC44E /* ofxEasingSine.cpp */; };
 		AB27023716EECF4C000AC44E /* ofxTween.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB27022516EECF4C000AC44E /* ofxTween.cpp */; };
+		AB27024316EF62F6000AC44E /* ofxTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB27024116EF62F6000AC44E /* ofxTimer.cpp */; };
 		AB47ADA016D73C9C00C50356 /* ArsUIButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB47AD9E16D73C9C00C50356 /* ArsUIButton.cpp */; };
 		AB47ADFD16DB355500C50356 /* ArsUIRoboCam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB47ADFB16DB355500C50356 /* ArsUIRoboCam.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
@@ -245,6 +246,8 @@
 		AB27022416EECF4C000AC44E /* ofxEasingSine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxEasingSine.h; sourceTree = "<group>"; };
 		AB27022516EECF4C000AC44E /* ofxTween.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxTween.cpp; sourceTree = "<group>"; };
 		AB27022616EECF4C000AC44E /* ofxTween.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxTween.h; sourceTree = "<group>"; };
+		AB27024116EF62F6000AC44E /* ofxTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxTimer.cpp; sourceTree = "<group>"; };
+		AB27024216EF62F6000AC44E /* ofxTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxTimer.h; sourceTree = "<group>"; };
 		AB47AD9E16D73C9C00C50356 /* ArsUIButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ArsUIButton.cpp; sourceTree = "<group>"; };
 		AB47AD9F16D73C9C00C50356 /* ArsUIButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArsUIButton.h; sourceTree = "<group>"; };
 		AB47ADFB16DB355500C50356 /* ArsUIRoboCam.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ArsUIRoboCam.cpp; sourceTree = "<group>"; };
@@ -680,9 +683,28 @@
 			path = Easings;
 			sourceTree = "<group>";
 		};
+		AB27023F16EF62F6000AC44E /* ofxTimer */ = {
+			isa = PBXGroup;
+			children = (
+				AB27024016EF62F6000AC44E /* src */,
+			);
+			name = ofxTimer;
+			path = ../../../addons/ofxTimer;
+			sourceTree = "<group>";
+		};
+		AB27024016EF62F6000AC44E /* src */ = {
+			isa = PBXGroup;
+			children = (
+				AB27024116EF62F6000AC44E /* ofxTimer.cpp */,
+				AB27024216EF62F6000AC44E /* ofxTimer.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				AB27023F16EF62F6000AC44E /* ofxTimer */,
 				421D843316EF59680067F004 /* ofxUI */,
 				421D83D416EF59550067F004 /* ofxJSON */,
 				AB2701F216EECF4B000AC44E /* ofxTween */,
@@ -914,6 +936,7 @@
 				421D842716EF59550067F004 /* json_value.cpp in Sources */,
 				421D842816EF59550067F004 /* json_writer.cpp in Sources */,
 				421D842916EF59550067F004 /* ofxJSONElement.cpp in Sources */,
+				AB27024316EF62F6000AC44E /* ofxTimer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

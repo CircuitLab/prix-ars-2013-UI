@@ -24,13 +24,12 @@ ArsUIMapControlState::~ArsUIMapControlState()
 void ArsUIMapControlState::init()
 {
     setupGUI();
-    // gui->setDrawBack(false);
 }
 
 //--------------------------------------------------------------
 void ArsUIMapControlState::stateEnter()
 {
-    fujiPoint.set(532.16, 633.19);
+    fujiPoint.set(964, 600);
     
     for (int i = 0; i < 10; ++i) {
         buttons.push_back(ArsUIButton(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60)));
@@ -43,9 +42,9 @@ void ArsUIMapControlState::stateEnter()
     cam1Position = ofPoint(robos[0].getPosition().x, robos[0].getPosition().y);
     cam2Position = ofPoint(robos[1].getPosition().x, robos[1].getPosition().y);
     
-    eye[0] = -1;
-    eye[1] = -1;
-    selectedMode = 0;
+    eyes[0] = -1;
+    eyes[1] = -1;
+    selectedEye = 0;
     
     fujiMap.loadImage("map.png");
     
@@ -53,8 +52,6 @@ void ArsUIMapControlState::stateEnter()
 	ofAddListener(getSharedData().tuioClient.cursorRemoved, this, &ArsUIMapControlState::tuioRemoved);
 	ofAddListener(getSharedData().tuioClient.cursorUpdated, this, &ArsUIMapControlState::tuioUpdated);
     ofAddListener(getSharedData().oscReceiverFromServer.onMessageReceived, this, &ArsUIMapControlState::onOscMessageReceived);
-    
-    ofAddListener(timer.TIMER_REACHED, this, &ArsUIMapControlState::timerReached);
 }
 
 //--------------------------------------------------------------
@@ -68,10 +65,6 @@ void ArsUIMapControlState::stateExit()
 	ofRemoveListener(getSharedData().tuioClient.cursorRemoved, this, &ArsUIMapControlState::tuioRemoved);
 	ofRemoveListener(getSharedData().tuioClient.cursorUpdated, this, &ArsUIMapControlState::tuioUpdated);
     ofRemoveListener(getSharedData().oscReceiverFromServer.onMessageReceived, this, &ArsUIMapControlState::onOscMessageReceived);
-    
-    ofRemoveListener(timer.TIMER_REACHED, this, &ArsUIMapControlState::timerReached);
-    timer.stopTimer();
-    timer.~ofxTimer();
 }
 
 //--------------------------------------------------------------
@@ -121,7 +114,17 @@ void ArsUIMapControlState::draw()
     
     for (int i = 0; i < robos.size(); ++i) {
         robos[i].draw();
+        
+        ofPoint p = robos[i].getPosition();
+        
+        ofSetColor(255, 0, 0);
+        ofLine(p.x, 0, p.x, ofGetHeight());
+        ofLine(0, p.y, ofGetWidth(), p.y);
     }
+    
+    ofSetColor(0, 255, 0);
+    ofLine(fujiPoint.x, 0, fujiPoint.x, ofGetHeight());
+    ofLine(0, fujiPoint.y, ofGetWidth(), fujiPoint.y);
 }
 
 //--------------------------------------------------------------
@@ -171,25 +174,25 @@ void ArsUIMapControlState::setupGUI()
 //--------------------------------------------------------------
 void ArsUIMapControlState::setEye(int bid)
 {
-    int oldMode = eye[selectedMode];
+    int lastEye = eyes[selectedEye];
     
-    if (-1 != oldMode) {
+    if (-1 != lastEye) {
         for (int i = 0; i < buttons.size(); ++i) {
-            if(buttons[i].getId() == oldMode){
+            if(buttons[i].getId() == lastEye){
                 buttons[i].setStatus(0);
             }
         }
         
         for (int i = 0; i < robos.size(); ++i) {
-            if(robos[i].getId() == oldMode){
+            if(robos[i].getId() == lastEye){
                 robos[i].setStatus(0);
             }
         }
     }
     
-    eye[selectedMode] = bid;
+    eyes[selectedEye] = bid;
     
-    selectedMode = !selectedMode ? 1 : 0;
+    selectedEye = !selectedEye ? 1 : 0;
 }
 
 //--------------------------------------------------------------
@@ -199,19 +202,13 @@ void ArsUIMapControlState::tuioAdded(ofxTuioCursor &tuioCursor)
     
     cout << "TUIO added, x: " << loc.x << ", y: " << loc.y << endl;
     
-    initialTouchPoint = loc;
-    lastTouchPoint = initialTouchPoint;
-    
-    timer.setup(1000, false);
-    timer.startTimer();
-    
     ArsUITappedPoint tappedPoint(loc.x, loc.y, tuioCursor.getFingerId());
     getSharedData().tappedPoints.push_back(tappedPoint);
     
     for (int i = 0; i < buttons.size(); ++i) {
-        int bid = buttons[i].tapped(loc.x, loc.y);
+        int bid = buttons[i].hitTestPoint(loc);
         
-        if (0 <= bid && bid != eye[0] && bid != eye[1]){
+        if (0 <= bid && bid != eyes[0] && bid != eyes[1]) {
             setEye(bid);
             buttons[i].setStatus(1);
             sendOSCToDisplay(bid);
@@ -219,13 +216,30 @@ void ArsUIMapControlState::tuioAdded(ofxTuioCursor &tuioCursor)
     }
     
     for (int i = 0; i < robos.size(); ++i) {
-        int bid = robos[i].tapped(loc.x, loc.y);
+        int bid = robos[i].hitTestPoint(loc);
         
-        if (0 <= bid && bid != eye[0] && bid != eye[1]){
+        if (0 <= bid && bid != eyes[0] && bid != eyes[1]){
             setEye(bid);
             robos[i].setStatus(1);
             sendOSCToDisplay(bid);
         }
+    }
+    
+    
+    ofPoint cam1Pos = robos[0].getPosition();
+    ofPoint cam2Pos = robos[1].getPosition();
+    
+    float dist1 = ArsUIUtil::distance(loc, cam1Pos);
+    float dist2 = ArsUIUtil::distance(loc, cam2Pos);
+        
+    if (dist1 < dist2 && dist1 <= 10) {
+        cam1TouchedStartedAt = ofGetElapsedTimeMillis();
+        cam1FingerId = tuioCursor.getFingerId();
+        cout << "CAM 1 touched, time(millis): " << cam1TouchedStartedAt << endl;
+    } else if (dist2 < dist1 && dist2 <= 10) {
+        cam2TouchedStartedAt = ofGetElapsedTimeMillis();
+        cam2FingerId = tuioCursor.getFingerId();
+        cout << "CAM 2 touched, time(millis): " << cam2TouchedStartedAt << endl;
     }
     
     //	cout << "Point n" << tuioCursor.getSessionId() << " add at " << loc << endl;
@@ -237,8 +251,16 @@ void ArsUIMapControlState::tuioRemoved(ofxTuioCursor &tuioCursor)
     ofPoint loc = ofPoint(tuioCursor.getX() * ofGetWidth(), tuioCursor.getY() * ofGetHeight());
     cout << "TUIO removed, id: " << tuioCursor.getFingerId() << endl;
 	//cout << "Point n" << tuioCursor.getSessionId() << " remove at " << loc << endl;
-    
-    timer.stopTimer();
+        
+    if (tuioCursor.getFingerId() == cam1FingerId) {
+        cam1TouchedStartedAt = 0;
+        cam1FingerId = -1;
+        isCam1Draggable = false;
+    } else if (tuioCursor.getFingerId() == cam2FingerId) {
+        cam2TouchedStartedAt = 0;
+        cam2FingerId = -1;
+        isCam2Draggable = false;
+    }
 }
 
 //--------------------------------------------------------------
@@ -246,13 +268,27 @@ void ArsUIMapControlState::tuioUpdated(ofxTuioCursor &tuioCursor)
 {
     ofPoint loc = ofPoint(tuioCursor.getX() * ofGetWidth(), tuioCursor.getY() * ofGetHeight());
     
-    lastTouchPoint = loc;
-    
-	//cout << "Point n" << tuioCursor.getSessionId() << " updated at " << loc << endl;
-    
-    for (int i = 0; i < robos.size(); ++i) {
-        robos[i].dragAngle(loc.x, loc.y);
+    // cout << "TUIO updated, id: " << tuioCursor.getFingerId() << endl;
+            
+    if (0 < cam1TouchedStartedAt && 1000 <= ofGetElapsedTimeMillis() - cam1TouchedStartedAt && tuioCursor.getFingerId() == cam1FingerId) {
+        isCam1Draggable = true;
+        cam1Position = loc;
+    } else {
+        isCam1Draggable = false;
+        robos[0].dragAngle(loc.x, loc.y);
     }
+    
+    if (0 < cam2TouchedStartedAt && 1000 <= ofGetElapsedTimeMillis() - cam2TouchedStartedAt && tuioCursor.getFingerId() == cam2FingerId) {
+        isCam2Draggable = true;
+        cam2Position = loc;
+    } else {
+        isCam2Draggable = false;
+        robos[1].dragAngle(loc.x, loc.y);
+    }
+    
+//    for (int i = 0; i < robos.size(); ++i) {
+//        robos[i].dragAngle(loc.x, loc.y);
+//    }
 }
 
 //--------------------------------------------------------------
@@ -340,10 +376,10 @@ void ArsUIMapControlState::sendOSCToDisplay(int bid)
 {
     ofxOscMessage msg;
     
-    if (1 == selectedMode) {
+    if (1 == selectedEye) {
         msg.setAddress("/right/image");
         msg.addStringArg("right file address");
-    } else if (0 == selectedMode)  {
+    } else if (0 == selectedEye)  {
         msg.setAddress("/left/image");
         msg.addStringArg("left file address");
     }
@@ -356,27 +392,4 @@ void ArsUIMapControlState::sendOSCToDisplay(int bid)
 void ArsUIMapControlState::guiEvent(ofxUIEventArgs &e)
 {
     
-}
-
-//--------------------------------------------------------------
-void ArsUIMapControlState::timerReached(ofEventArgs &e)
-{
-    if (lastTouchPoint.x < initialTouchPoint.x + 5 &&
-        lastTouchPoint.y < initialTouchPoint.y + 5 &&
-        lastTouchPoint.x > initialTouchPoint.x - 5 &&
-        lastTouchPoint.y > initialTouchPoint.y - 5) {
-        cout << "hold" << endl;
-        ArsUITappedPoint tappedPoint(lastTouchPoint.x, lastTouchPoint.y, 0);
-        getSharedData().tappedPoints.push_back(tappedPoint);
-        
-        float dist1 = lastTouchPoint.distance(robos[0].getPosition());
-        float dist2 = lastTouchPoint.distance(robos[1].getPosition());
-        
-        if (dist1 < dist2) {
-            isCam1Draggable = true;
-        } else {
-            isCam2Draggable = true;
-        }
-        
-    }
 }

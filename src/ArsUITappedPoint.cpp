@@ -9,7 +9,7 @@
 #include "ArsUITappedPoint.h"
 #include "ofxEasingFunc.h"
 
-ArsUITappedPoint::ArsUITappedPoint(float _x, float _y, int tid)
+ArsUITappedPoint::ArsUITappedPoint(float _x, float _y, int tid, bool isTap)
 {
 	x = _x;
 	y = _y;
@@ -18,6 +18,12 @@ ArsUITappedPoint::ArsUITappedPoint(float _x, float _y, int tid)
 	tcnt = 0;
     cntmax = 30;
     tapid = tid;
+    
+    if (isTap) {
+        touchStartedAt = ofGetElapsedTimeMillis();
+    } else {
+        touchStartedAt = 0;
+    }
 }
 
 void ArsUITappedPoint::update()
@@ -41,4 +47,17 @@ bool ArsUITappedPoint::alive()
 {
 	return tcnt <= cntmax ;
     
+}
+
+unsigned long long ArsUITappedPoint::getTouchStartedAt()
+{
+    return touchStartedAt;
+}
+
+long ArsUITappedPoint::getElapsedTimeFromTouchStarted()
+{
+    if (0 < touchStartedAt) {
+        return ofGetElapsedTimeMillis() - touchStartedAt;
+    }
+    return 0;
 }

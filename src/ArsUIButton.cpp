@@ -70,9 +70,11 @@ void ArsUIButton::draw(){
     ofPopMatrix();
 }
 
-int ArsUIButton::tapped(float _x, float _y){
-    double distance =   sqrt( (double)((_x - x) * (_x - x) + (_y - y)*(_y - y))) ;
-    if (distance < radius/2) {
+int ArsUIButton::hitTestPoint(ofPoint p)
+{
+    double distance = abs(sqrt((double)((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y))));
+    
+    if (distance < radius / 2) {
         return bid;
     }
     return -1;

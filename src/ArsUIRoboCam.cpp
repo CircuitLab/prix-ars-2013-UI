@@ -67,11 +67,11 @@ void ArsUIRoboCam::draw(){
 
 }
 
-int ArsUIRoboCam::tapped(float _x, float _y)
+int ArsUIRoboCam::hitTestPoint(ofPoint p)
 {
-    int _bid = ArsUIButton::tapped(_x, _y);
+    int _bid = ArsUIButton::hitTestPoint(p);
    
-    if (_bid != -1 && status ==1){
+    if (-1 != _bid && 1 == status) {
         setDefaultAngle();
     }
     return _bid;
@@ -79,7 +79,7 @@ int ArsUIRoboCam::tapped(float _x, float _y)
 
 void ArsUIRoboCam::dragAngle(float _x, float _y){
     if(status == 1){
-        float distance = sqrt((x - _x) * (x - _x) + (y - _y) *(y - _y) );
+        float distance = sqrt((x - _x) * (x - _x) + (y - _y) * (y - _y));
         if (distance  > radius && distance < radius *1.5) {
             ofPoint p1 = ofPoint(x,y);
             ofPoint p2 = ofPoint(_x,_y);

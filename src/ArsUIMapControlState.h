@@ -61,8 +61,8 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
     
         ofPoint cam1Position, cam2Position;
     
-        int eye[2]; //0:right 1:left
-        int selectedMode;//0:select right eye, 1:select left eye
+        int eyes[2]; //0:right 1:left
+        int selectedEye;//0:select right eye, 1:select left eye
         void setEye(int bid);
     
         ofxJSONElement json;
@@ -74,10 +74,9 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
         ofxUICanvas *gui;
         void guiEvent(ofxUIEventArgs &e);
     
-        ofxTimer timer;
-        void timerReached(ofEventArgs &e);
-        ofPoint initialTouchPoint, lastTouchPoint;
         bool isCam1Draggable, isCam2Draggable;
+        int cam1FingerId, cam2FingerId;
+        unsigned long long cam1TouchedStartedAt, cam2TouchedStartedAt;
 };
 
 #endif

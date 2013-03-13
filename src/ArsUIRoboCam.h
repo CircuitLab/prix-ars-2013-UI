@@ -12,7 +12,7 @@ class ArsUIRoboCam: public ArsUIButton
     void draw();
     void update();
     
-    int tapped(float _x, float _y);
+    int hitTestPoint(ofPoint p);
     void dragAngle(float _, float _y);
     bool dragAngleEnded(float _, float _y);
     void setDefaultAngle();

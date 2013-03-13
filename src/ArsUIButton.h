@@ -20,7 +20,7 @@ class ArsUIButton
         ArsUIButton(float _x, float _y, int _bid, ofPoint _fuji, float _angle );
         virtual void draw();
         virtual void update();
-        virtual int tapped(float _x, float _y);
+        virtual int hitTestPoint(ofPoint p);
     
         void setPosition(ofPoint pos);
         ofPoint getPosition();

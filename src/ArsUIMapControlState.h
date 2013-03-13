@@ -52,7 +52,7 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
     
         void onOscMessageReceived(ofxOscMessage &msg);
     
-        void sendViewpointToServer(int camId, int compass, int angle);
+        void sendViewpointToServer(ArsUIRoboCam cam);
         void sendTakeTriggerToServer(int camId);
         void sendOSCToDisplay(int bid);
     
@@ -77,6 +77,8 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
         bool isCam1Draggable, isCam2Draggable;
         int cam1FingerId, cam2FingerId;
         unsigned long long cam1TouchedStartedAt, cam2TouchedStartedAt;
+    
+        bool bShowStatus;
 };
 
 #endif

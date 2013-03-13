@@ -106,8 +106,42 @@ double ArsUIButton::calcDirection(ofPoint *_p1, ofPoint *_p2)
     return theta;
 }
 
-void ArsUIButton::setAngle(float _angle){
+int ArsUIButton::calcCompass(ofPoint *p)
+{
+    float dx = x - p->x;
+    float dy = y - p->y;
+    float radians = atan2(dy, dx);
+    return (int)radians * 180 / PI;
+}
+
+void ArsUIButton::setAngle(float _angle)
+{
     viewAngle = _angle;
+}
+
+int ArsUIButton::getAngle()
+{
+    return viewAngle;
+}
+
+
+double ArsUIButton::getDirectionAsRadians()
+{
+    return currentDirection;
+}
+
+double ArsUIButton::getDirectionAsDegrees()
+{
+    return currentDirection * 180 / PI;
+}
+
+int ArsUIButton::getCompass()
+{
+    int deg = (int)getDirectionAsDegrees() - 90;
+    if (0 > deg) {
+        deg = ofMap(deg, -90, -1, 270, 359);
+    }
+    return deg;
 }
 
 void ArsUIButton::setStatus(int _status){

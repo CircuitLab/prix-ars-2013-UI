@@ -12,6 +12,7 @@ class ArsUIButton
         double directionToFuji; //radian
         double currentDirection;
         double calcDirection(ofPoint *_p1, ofPoint *_p2);
+        int    calcCompass(ofPoint *p);
         double viewAngle;
         double latitude;
         double longtitude;
@@ -26,6 +27,10 @@ class ArsUIButton
         ofPoint getPosition();
     
         void setAngle(float _angle);
+        int getAngle();
+        double getDirectionAsRadians();
+        double getDirectionAsDegrees();
+        int getCompass();
         void setStatus(int _status);
         int getStatus();
         int getId();

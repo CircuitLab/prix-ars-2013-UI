@@ -6,7 +6,7 @@ ArsUIRoboCam::ArsUIRoboCam(float _x, float _y, int _bid, ofPoint _fuji,float _an
 
 void ArsUIRoboCam::update(){
     ArsUIButton::update();
-    dragAngle(x, y);
+    // dragAngle(x, y);
 }
 
 void ArsUIRoboCam::draw(){
@@ -58,7 +58,7 @@ void ArsUIRoboCam::draw(){
     
     ofSetColor(255, 255, 255, 255);
     ofPopMatrix();
-     if(status ==1){
+     if(status == 1){
       ofSetColor(50, 50, 50,200);
       ofCircle(x + cos(currentDirection) * times * radius /2.7  , y - sin(currentDirection) * times *radius /2.7, times *radius / 12);
      }
@@ -80,10 +80,10 @@ int ArsUIRoboCam::hitTestPoint(ofPoint p)
 void ArsUIRoboCam::dragAngle(float _x, float _y){
     if(status == 1){
         float distance = sqrt((x - _x) * (x - _x) + (y - _y) * (y - _y));
-        if (distance  > radius && distance < radius *1.5) {
-            ofPoint p1 = ofPoint(x,y);
-            ofPoint p2 = ofPoint(_x,_y);
-            float newAngle = ArsUIButton::calcDirection(&p1,&p2);
+        if (distance  > radius && distance < radius * 1.5) {
+            ofPoint p1 = ofPoint(x, y);
+            ofPoint p2 = ofPoint(_x, _y);
+            float newAngle = ArsUIButton::calcDirection(&p1, &p2);
         //    if(newAngle < directionToFuji + 0.8 && newAngle > directionToFuji - 0.8 ){
                 currentDirection = newAngle;
           //  }

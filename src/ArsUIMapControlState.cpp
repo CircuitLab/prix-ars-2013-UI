@@ -29,6 +29,8 @@ void ArsUIMapControlState::init()
 //--------------------------------------------------------------
 void ArsUIMapControlState::stateEnter()
 {
+    bShowStatus = true;
+    
     fujiPoint.set(964, 600);
     
     for (int i = 0; i < 10; ++i) {
@@ -52,6 +54,9 @@ void ArsUIMapControlState::stateEnter()
 	ofAddListener(getSharedData().tuioClient.cursorRemoved, this, &ArsUIMapControlState::tuioRemoved);
 	ofAddListener(getSharedData().tuioClient.cursorUpdated, this, &ArsUIMapControlState::tuioUpdated);
     ofAddListener(getSharedData().oscReceiverFromServer.onMessageReceived, this, &ArsUIMapControlState::onOscMessageReceived);
+    
+    sendViewpointToServer(robos[0]);
+    sendViewpointToServer(robos[1]);
 }
 
 //--------------------------------------------------------------
@@ -65,6 +70,7 @@ void ArsUIMapControlState::stateExit()
 	ofRemoveListener(getSharedData().tuioClient.cursorRemoved, this, &ArsUIMapControlState::tuioRemoved);
 	ofRemoveListener(getSharedData().tuioClient.cursorUpdated, this, &ArsUIMapControlState::tuioUpdated);
     ofRemoveListener(getSharedData().oscReceiverFromServer.onMessageReceived, this, &ArsUIMapControlState::onOscMessageReceived);
+    ofRemoveListener(gui->newGUIEvent, this, &ArsUIMapControlState::guiEvent);
 }
 
 //--------------------------------------------------------------
@@ -122,6 +128,41 @@ void ArsUIMapControlState::draw()
         ofLine(0, p.y, ofGetWidth(), p.y);
     }
     
+    ofPushStyle();
+    ofSetColor(255, 0, 0);
+    
+    if (bShowStatus) {
+        string str1 = "X      : " + ofToString(cam1Position.x) +
+        "\nY      : " + ofToString(cam1Position.y) +
+        "\nANGLE  : " + ofToString(robos[0].getAngle()) +
+        "\nCOMPASS: " + ofToString(robos[0].getCompass());
+        ofDrawBitmapString(str1, cam1Position + ofPoint(70, -50));
+        
+        string str2 = "X      : " + ofToString(cam2Position.x) +
+        "\nY      : " + ofToString(cam2Position.y) +
+        "\nANGLE  : " + ofToString(robos[1].getAngle()) +
+        "\nCOMPASS: " + ofToString(robos[1].getCompass());
+        ofDrawBitmapString(str2, cam2Position + ofPoint(70, -50));
+    } else {
+        if (isCam1Draggable) {
+            string str = "X      : " + ofToString(cam1Position.x) +
+            "\nY      : " + ofToString(cam1Position.y) +
+            "\nANGLE  : " + ofToString(robos[0].getAngle()) +
+            "\nCOMPASS: " + ofToString(robos[0].getCompass());
+            ofDrawBitmapString(str, cam1Position + ofPoint(70, -50));
+        }
+        
+        if (isCam2Draggable) {
+            string str = "X      : " + ofToString(cam2Position.x) +
+            "\nY      : " + ofToString(cam2Position.y) +
+            "\nANGLE  : " + ofToString(robos[1].getAngle()) +
+            "\nCOMPASS: " + ofToString(robos[1].getCompass());
+            ofDrawBitmapString(str, cam2Position + ofPoint(70, -50));
+        }
+    }
+    
+    ofPopStyle();
+    
     ofSetColor(0, 255, 0);
     ofLine(fujiPoint.x, 0, fujiPoint.x, ofGetHeight());
     ofLine(0, fujiPoint.y, ofGetWidth(), fujiPoint.y);
@@ -167,8 +208,10 @@ void ArsUIMapControlState::setupGUI()
     gui->addSpacer();
     gui->addFPSSlider("FPS SLIDER", GUI_CANVAS_WIDTH - 10, 18, 60);
     gui->addSpacer();
-    gui->addWidgetDown(new ofxUILabel("FUJI POSITION", OFX_UI_FONT_MEDIUM));
+    gui->addLabelButton("SHOOT", false, true);
     gui->autoSizeToFitWidgets();
+    
+    ofAddListener(gui->newGUIEvent, this, &ArsUIMapControlState::guiEvent);
 }
 
 //--------------------------------------------------------------
@@ -261,6 +304,8 @@ void ArsUIMapControlState::tuioRemoved(ofxTuioCursor &tuioCursor)
         cam2FingerId = -1;
         isCam2Draggable = false;
     }
+    
+    sendViewpointToServer(robos[0]);
 }
 
 //--------------------------------------------------------------
@@ -285,10 +330,6 @@ void ArsUIMapControlState::tuioUpdated(ofxTuioCursor &tuioCursor)
         isCam2Draggable = false;
         robos[1].dragAngle(loc.x, loc.y);
     }
-    
-//    for (int i = 0; i < robos.size(); ++i) {
-//        robos[i].dragAngle(loc.x, loc.y);
-//    }
 }
 
 //--------------------------------------------------------------
@@ -352,13 +393,13 @@ void ArsUIMapControlState::getPictureFromURL(string url)
 }
 
 //--------------------------------------------------------------
-void ArsUIMapControlState::sendViewpointToServer(int camId, int compass, int angle)
+void ArsUIMapControlState::sendViewpointToServer(ArsUIRoboCam cam)
 {
     ofxOscMessage msg;
     msg.setAddress("/gianteyes/viewpoint");
-    msg.addIntArg(camId);
-    msg.addIntArg(compass);
-    msg.addIntArg(angle);
+    msg.addIntArg(cam.getId());
+    msg.addIntArg(cam.getCompass());
+    msg.addIntArg(cam.getAngle());
     getSharedData().oscSenderToServer.sendMessage(msg);
 }
 
@@ -391,5 +432,11 @@ void ArsUIMapControlState::sendOSCToDisplay(int bid)
 //--------------------------------------------------------------
 void ArsUIMapControlState::guiEvent(ofxUIEventArgs &e)
 {
+    string name = e.widget->getName();
+	int kind = e.widget->getKind();
     
+    if(kind == OFX_UI_WIDGET_LABELBUTTON) {
+        ofxUILabelButton *button = (ofxUILabelButton *) e.widget;
+        cout << name << "\t value: " << button->getValue() << endl;
+    }
 }

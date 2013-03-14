@@ -1,9 +1,11 @@
 #include "ArsUIButton.h"
 #include "ofxEasingFunc.h"
 
-ArsUIButton::ArsUIButton(float _x, float _y, int _bid, ofPoint _fuji, float _angle){
+//--------------------------------------------------------------
+ArsUIButton::ArsUIButton(float _x, float _y, int _bid, ofPoint _fuji, float _angle, string _udid){
 	x = _x;
 	y = _y;
+    udid = _udid;
     bid = _bid;
     status = 0;
     speed = 3600;
@@ -15,9 +17,37 @@ ArsUIButton::ArsUIButton(float _x, float _y, int _bid, ofPoint _fuji, float _ang
     current.set(_x, _y);
     directionToFuji = calcDirection(&current, &fuji);
     currentDirection = directionToFuji;
-    viewAngle = _angle;
+    angle = _angle;
+    compass = getCompass();
 }
 
+//--------------------------------------------------------------
+ArsUIButton::ArsUIButton(double _lat, double _lon, string _udid, int _angle, int _compass, int _bid, ofPoint _fuji)
+{
+    ofPoint p = GPStoXY(_lat, _lon);
+    x = p.x;
+    y = p.y;
+    udid = _udid;
+    angle = _angle;
+    compass = _compass;
+    bid = _bid;
+    fuji = _fuji;
+    
+    status = 0;
+    speed = 3600;
+    bcnt = (int)ofRandom(speed);
+    mark.loadImage("mark.png");
+    markShadow.loadImage("markshadow.png");
+    
+    ofPoint current;
+    current.set(x, y);
+    
+    currentDirection = compass * PI / 180;
+    
+    compass = getCompass();
+}
+
+//--------------------------------------------------------------
 void ArsUIButton::update(){
     
     float v = sinf((float)bcnt/speed * 2 * PI);
@@ -26,6 +56,7 @@ void ArsUIButton::update(){
     if(bcnt == speed) bcnt =0;
 }
 
+//--------------------------------------------------------------
 void ArsUIButton::draw(){
     //status: 0:default 1:select
     
@@ -40,8 +71,8 @@ void ArsUIButton::draw(){
     path.setCurveResolution(120);
     path.setColor( ofColor(50, 200, 255,40));
     path.moveTo(x,y);
-    float angle1 = 360 - (360 * currentDirection / (PI * 2) + viewAngle / 2) ;
-    float angle2 = 360 - (360 * currentDirection / (PI * 2) - viewAngle / 2) ;
+    float angle1 = 360 - (360 * currentDirection / (PI * 2) + angle / 2) ;
+    float angle2 = 360 - (360 * currentDirection / (PI * 2) - angle / 2) ;
     path.arc(x, y, distanceToFuji, distanceToFuji, angle1, angle2);
     
     
@@ -70,6 +101,8 @@ void ArsUIButton::draw(){
     ofPopMatrix();
 }
 
+
+//--------------------------------------------------------------
 int ArsUIButton::hitTestPoint(ofPoint p)
 {
     double distance = abs(sqrt((double)((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y))));
@@ -80,17 +113,26 @@ int ArsUIButton::hitTestPoint(ofPoint p)
     return -1;
 }
 
+//--------------------------------------------------------------
 void ArsUIButton::setPosition(ofPoint pos)
 {
     x = pos.x;
     y = pos.y;
 }
 
+//--------------------------------------------------------------
 ofPoint ArsUIButton::getPosition()
 {
     return ofPoint(x, y);
 }
 
+//--------------------------------------------------------------
+void ArsUIButton::setFujiPosition(ofPoint p)
+{
+    fuji = p;
+}
+
+//--------------------------------------------------------------
 //return radian
 double ArsUIButton::calcDirection(ofPoint *_p1, ofPoint *_p2)
 {
@@ -106,6 +148,7 @@ double ArsUIButton::calcDirection(ofPoint *_p1, ofPoint *_p2)
     return theta;
 }
 
+//--------------------------------------------------------------
 int ArsUIButton::calcCompass(ofPoint *p)
 {
     float dx = x - p->x;
@@ -114,27 +157,37 @@ int ArsUIButton::calcCompass(ofPoint *p)
     return (int)radians * 180 / PI;
 }
 
+//--------------------------------------------------------------
 void ArsUIButton::setAngle(float _angle)
 {
-    viewAngle = _angle;
+    angle = _angle;
 }
 
+//--------------------------------------------------------------
 int ArsUIButton::getAngle()
 {
-    return viewAngle;
+    return angle;
 }
 
-
+//--------------------------------------------------------------
 double ArsUIButton::getDirectionAsRadians()
 {
     return currentDirection;
 }
 
+//--------------------------------------------------------------
 double ArsUIButton::getDirectionAsDegrees()
 {
     return currentDirection * 180 / PI;
 }
 
+//--------------------------------------------------------------
+void ArsUIButton::setCompass(int degrees)
+{
+    currentDirection = degrees * PI / 180;
+}
+
+//--------------------------------------------------------------
 int ArsUIButton::getCompass()
 {
     int deg = (int)getDirectionAsDegrees() - 90;
@@ -144,25 +197,45 @@ int ArsUIButton::getCompass()
     return deg;
 }
 
+//--------------------------------------------------------------
 void ArsUIButton::setStatus(int _status){
     status = _status;
 }
+
+//--------------------------------------------------------------
 int ArsUIButton::getStatus(){
     return bid;
 }
+
+//--------------------------------------------------------------
 int ArsUIButton::getId(){
     return bid;
 }
 
-void ArsUIButton::setCameraStatus(double _lat, double _lon){
+//--------------------------------------------------------------
+void ArsUIButton::setCameraStatus(double _lat, double _lon, int compass, int angle){
     latitude = _lat;
-    longtitude = _lon;
+    longitude = _lon;
     ofPoint place = GPStoXY(_lat, _lon);
     x = place.x;
     y = place.y;
     
 }
 
+//--------------------------------------------------------------
+void ArsUIButton::setCameraStatus(ofxJSONElement json)
+{
+    latitude = json["latitude"].asDouble();
+    longitude = json["longitude"].asDouble();
+    compass = json["compass"].asInt();
+    angle = json["angle"].asInt();
+    
+    ofPoint p = GPStoXY(latitude, longitude);
+    x = p.x;
+    y = p.y;
+}
+
+//--------------------------------------------------------------
 ofPoint ArsUIButton::GPStoXY(double _lat,double _lon){
     //calibration set
     //fuji benchmark (富士 中心)

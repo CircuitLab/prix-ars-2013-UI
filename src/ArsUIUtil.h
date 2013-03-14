@@ -24,7 +24,8 @@ class ArsUIUtil
             return abs(sqrt(a * a + b * b));
         };
     
-        static ofPoint GPStoXY(ofPoint fujiPos, double lat, double lon) {
+        static ofPoint GPStoXY(double lat, double lon) {
+            ofPoint fujiPos = ofPoint(964, 600);
             ofPoint yamanakaLakePos = ofPoint(1263, 489);
             
             ofPoint p;
@@ -47,8 +48,12 @@ class ArsUIUtil
 //            return newPoint;
         };
     
-    static ofPoint XYtoGPS(ofPoint fujiPos, ofPoint pos) {
-        
+    static ofPoint XYtoGPS(ofPoint fujiPos) {
+        // 35.601610, 138.255997
+        // 35.165514, 139.199448
+        double lat = ofMap(fujiPos.x, 0, ofGetWidth(), 35.601610, 35.165514);
+        double lon = ofMap(fujiPos.y, 0, ofGetHeight(), 138.255997, 139.199448);
+        return ofPoint(lat, lon);
     };
 };
 

@@ -42,8 +42,8 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
     private:
         void init();
     
-        vector <ArsUIButton> buttons; // web camera
-        vector <ArsUIRoboCam> robos; // robot
+        vector <ArsUIButton> inoperableCameras; // web camera
+        vector <ArsUIRoboCam> operableCameras; // robot
     
         void tuioAdded(ofxTuioCursor & tuioCursor);
         void tuioRemoved(ofxTuioCursor & tuioCursor);
@@ -77,6 +77,7 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
         bool isCam1Draggable, isCam2Draggable;
         int cam1FingerId, cam2FingerId;
         unsigned long long cam1TouchedStartedAt, cam2TouchedStartedAt;
+        void drawCamStatuses(ArsUIRoboCam cam);
     
         bool bShowStatus;
 };

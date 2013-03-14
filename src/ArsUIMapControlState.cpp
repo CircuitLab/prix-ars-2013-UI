@@ -23,7 +23,7 @@ ArsUIMapControlState::~ArsUIMapControlState()
 //--------------------------------------------------------------
 void ArsUIMapControlState::init()
 {
-    setupGUI();
+    //setupGUI();
 }
 
 //--------------------------------------------------------------
@@ -32,17 +32,19 @@ void ArsUIMapControlState::stateEnter()
     bShowStatus = true;
     
     fujiPoint.set(964, 600);
+    ofPoint p = ArsUIUtil::XYtoGPS(fujiPoint);
+    cout << "XYtoGPS x: " << p.x << ", y: " << p.y << endl;
     
     for (int i = 0; i < 10; ++i) {
-        buttons.push_back(ArsUIButton(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60)));
+        inoperableCameras.push_back(ArsUIButton(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60), ""));
     }
     
     for (int i = 10; i < (10 + getSharedData().numRobots); ++i) {
-        robos.push_back(ArsUIRoboCam(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60)));
+        operableCameras.push_back(ArsUIRoboCam(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60), ""));
     }
     
-    cam1Position = ofPoint(robos[0].getPosition().x, robos[0].getPosition().y);
-    cam2Position = ofPoint(robos[1].getPosition().x, robos[1].getPosition().y);
+    cam1Position = ofPoint(operableCameras[0].getPosition().x, operableCameras[0].getPosition().y);
+    cam2Position = ofPoint(operableCameras[1].getPosition().x, operableCameras[1].getPosition().y);
     
     eyes[0] = -1;
     eyes[1] = -1;
@@ -55,15 +57,20 @@ void ArsUIMapControlState::stateEnter()
 	ofAddListener(getSharedData().tuioClient.cursorUpdated, this, &ArsUIMapControlState::tuioUpdated);
     ofAddListener(getSharedData().oscReceiverFromServer.onMessageReceived, this, &ArsUIMapControlState::onOscMessageReceived);
     
-    sendViewpointToServer(robos[0]);
-    sendViewpointToServer(robos[1]);
+    ofxOscMessage msg;
+    msg.setAddress("/gianteyes/hello");
+    msg.addIntArg(getSharedData().incomingPort);
+    getSharedData().oscSenderToServer.sendMessage(msg);
+    
+    sendViewpointToServer(operableCameras[0]);
+    sendViewpointToServer(operableCameras[1]);
 }
 
 //--------------------------------------------------------------
 void ArsUIMapControlState::stateExit()
 {
-    buttons.clear();
-    robos.clear();
+    inoperableCameras.clear();
+    operableCameras.clear();
     fujiMap.clear();
     
     ofRemoveListener(getSharedData().tuioClient.cursorAdded, this, &ArsUIMapControlState::tuioAdded);
@@ -87,14 +94,14 @@ void ArsUIMapControlState::update()
         }
     }
     
-    for (int i = 0; i < buttons.size(); ++i) {
-        buttons[i].update();
+    for (int i = 0; i < inoperableCameras.size(); ++i) {
+        inoperableCameras[i].update();
     }
     
-    robos[0].setPosition(cam1Position);
-    robos[1].setPosition(cam2Position);
-    robos[0].update();
-    robos[1].update();
+    operableCameras[0].setPosition(cam1Position);
+    operableCameras[1].setPosition(cam2Position);
+    operableCameras[0].update();
+    operableCameras[1].update();
 }
 
 //--------------------------------------------------------------
@@ -114,14 +121,14 @@ void ArsUIMapControlState::draw()
         getSharedData().tappedPoints[i].draw();
     }
     
-    for (int i = 0; i<buttons.size(); ++i) {
-        buttons[i].draw();
+    for (int i = 0; i<inoperableCameras.size(); ++i) {
+        inoperableCameras[i].draw();
     }
     
-    for (int i = 0; i < robos.size(); ++i) {
-        robos[i].draw();
+    for (int i = 0; i < operableCameras.size(); ++i) {
+        operableCameras[i].draw();
         
-        ofPoint p = robos[i].getPosition();
+        ofPoint p = operableCameras[i].getPosition();
         
         ofSetColor(255, 0, 0);
         ofLine(p.x, 0, p.x, ofGetHeight());
@@ -132,32 +139,15 @@ void ArsUIMapControlState::draw()
     ofSetColor(255, 0, 0);
     
     if (bShowStatus) {
-        string str1 = "X      : " + ofToString(cam1Position.x) +
-        "\nY      : " + ofToString(cam1Position.y) +
-        "\nANGLE  : " + ofToString(robos[0].getAngle()) +
-        "\nCOMPASS: " + ofToString(robos[0].getCompass());
-        ofDrawBitmapString(str1, cam1Position + ofPoint(70, -50));
-        
-        string str2 = "X      : " + ofToString(cam2Position.x) +
-        "\nY      : " + ofToString(cam2Position.y) +
-        "\nANGLE  : " + ofToString(robos[1].getAngle()) +
-        "\nCOMPASS: " + ofToString(robos[1].getCompass());
-        ofDrawBitmapString(str2, cam2Position + ofPoint(70, -50));
+        drawCamStatuses(operableCameras[0]);
+        drawCamStatuses(operableCameras[1]);
     } else {
         if (isCam1Draggable) {
-            string str = "X      : " + ofToString(cam1Position.x) +
-            "\nY      : " + ofToString(cam1Position.y) +
-            "\nANGLE  : " + ofToString(robos[0].getAngle()) +
-            "\nCOMPASS: " + ofToString(robos[0].getCompass());
-            ofDrawBitmapString(str, cam1Position + ofPoint(70, -50));
+            drawCamStatuses(operableCameras[0]);
         }
         
         if (isCam2Draggable) {
-            string str = "X      : " + ofToString(cam2Position.x) +
-            "\nY      : " + ofToString(cam2Position.y) +
-            "\nANGLE  : " + ofToString(robos[1].getAngle()) +
-            "\nCOMPASS: " + ofToString(robos[1].getCompass());
-            ofDrawBitmapString(str, cam2Position + ofPoint(70, -50));
+            drawCamStatuses(operableCameras[1]);
         }
     }
     
@@ -220,15 +210,15 @@ void ArsUIMapControlState::setEye(int bid)
     int lastEye = eyes[selectedEye];
     
     if (-1 != lastEye) {
-        for (int i = 0; i < buttons.size(); ++i) {
-            if(buttons[i].getId() == lastEye){
-                buttons[i].setStatus(0);
+        for (int i = 0; i < inoperableCameras.size(); ++i) {
+            if(inoperableCameras[i].getId() == lastEye){
+                inoperableCameras[i].setStatus(0);
             }
         }
         
-        for (int i = 0; i < robos.size(); ++i) {
-            if(robos[i].getId() == lastEye){
-                robos[i].setStatus(0);
+        for (int i = 0; i < operableCameras.size(); ++i) {
+            if(operableCameras[i].getId() == lastEye){
+                operableCameras[i].setStatus(0);
             }
         }
     }
@@ -248,29 +238,29 @@ void ArsUIMapControlState::tuioAdded(ofxTuioCursor &tuioCursor)
     ArsUITappedPoint tappedPoint(loc.x, loc.y, tuioCursor.getFingerId());
     getSharedData().tappedPoints.push_back(tappedPoint);
     
-    for (int i = 0; i < buttons.size(); ++i) {
-        int bid = buttons[i].hitTestPoint(loc);
+    for (int i = 0; i < inoperableCameras.size(); ++i) {
+        int bid = inoperableCameras[i].hitTestPoint(loc);
         
         if (0 <= bid && bid != eyes[0] && bid != eyes[1]) {
             setEye(bid);
-            buttons[i].setStatus(1);
+            inoperableCameras[i].setStatus(1);
             sendOSCToDisplay(bid);
         }
     }
     
-    for (int i = 0; i < robos.size(); ++i) {
-        int bid = robos[i].hitTestPoint(loc);
+    for (int i = 0; i < operableCameras.size(); ++i) {
+        int bid = operableCameras[i].hitTestPoint(loc);
         
         if (0 <= bid && bid != eyes[0] && bid != eyes[1]){
             setEye(bid);
-            robos[i].setStatus(1);
+            operableCameras[i].setStatus(1);
             sendOSCToDisplay(bid);
         }
     }
     
     
-    ofPoint cam1Pos = robos[0].getPosition();
-    ofPoint cam2Pos = robos[1].getPosition();
+    ofPoint cam1Pos = operableCameras[0].getPosition();
+    ofPoint cam2Pos = operableCameras[1].getPosition();
     
     float dist1 = ArsUIUtil::distance(loc, cam1Pos);
     float dist2 = ArsUIUtil::distance(loc, cam2Pos);
@@ -299,13 +289,13 @@ void ArsUIMapControlState::tuioRemoved(ofxTuioCursor &tuioCursor)
         cam1TouchedStartedAt = 0;
         cam1FingerId = -1;
         isCam1Draggable = false;
+        sendViewpointToServer(operableCameras[0]);
     } else if (tuioCursor.getFingerId() == cam2FingerId) {
         cam2TouchedStartedAt = 0;
         cam2FingerId = -1;
         isCam2Draggable = false;
+        sendViewpointToServer(operableCameras[1]);
     }
-    
-    sendViewpointToServer(robos[0]);
 }
 
 //--------------------------------------------------------------
@@ -320,7 +310,7 @@ void ArsUIMapControlState::tuioUpdated(ofxTuioCursor &tuioCursor)
         cam1Position = loc;
     } else {
         isCam1Draggable = false;
-        robos[0].dragAngle(loc.x, loc.y);
+        operableCameras[0].dragAngle(loc.x, loc.y);
     }
     
     if (0 < cam2TouchedStartedAt && 1000 <= ofGetElapsedTimeMillis() - cam2TouchedStartedAt && tuioCursor.getFingerId() == cam2FingerId) {
@@ -328,7 +318,7 @@ void ArsUIMapControlState::tuioUpdated(ofxTuioCursor &tuioCursor)
         cam2Position = loc;
     } else {
         isCam2Draggable = false;
-        robos[1].dragAngle(loc.x, loc.y);
+        operableCameras[1].dragAngle(loc.x, loc.y);
     }
 }
 
@@ -354,9 +344,21 @@ void ArsUIMapControlState::drawTuioCursors()
 }
 
 //--------------------------------------------------------------
+void ArsUIMapControlState::drawCamStatuses(ArsUIRoboCam cam)
+{
+    string str = "X      : " + ofToString(cam.getPosition().x) +
+               "\nY      : " + ofToString(cam.getPosition().y) +
+               "\nANGLE  : " + ofToString(cam.getAngle()) +
+               "\nCOMPASS: " + ofToString(cam.getCompass());
+    ofDrawBitmapString(str, cam.getPosition() + ofPoint(70, -50));
+}
+
+//--------------------------------------------------------------
 void ArsUIMapControlState::onOscMessageReceived(ofxOscMessage &msg)
 {
     string addr = msg.getAddress();
+    
+    cout << "OSC received. address: " << addr << endl;
     
     if ("/gianteyes/camera" == addr) {
         int udid = msg.getArgAsInt32(0);
@@ -381,7 +383,20 @@ void ArsUIMapControlState::onOscMessageReceived(ofxOscMessage &msg)
         string jsonString = msg.getArgAsString(0);
         
         if (0 < jsonString.length()) {
-            json.parse(jsonString);
+            if (json.parse(jsonString)) {
+                ofxJSONElement cameras = json["cameras"];
+                
+                inoperableCameras.clear();
+                operableCameras.clear();
+                
+                for (int i = 0; i < cameras.size(); ++i) {
+                    if (true == cameras[i]["operable"].asBool()) {
+                        ArsUIRoboCam r = ArsUIRoboCam(cameras[i]["latitude"].asDouble(), cameras[i]["longitude"].asDouble(), cameras[i]["udid"].asString(), cameras[i]["angle"].asInt(),  cameras[i]["compass"].asInt(), cameras[i]["battery"].asInt(), cameras[i]["living"].asBool(), i, fujiPoint);
+                    } else {
+                        ArsUIButton b = ArsUIButton(cameras[i]["latitude"].asDouble(), cameras[i]["longitude"].asDouble(), cameras[i]["udid"].asString(), cameras[i]["angle"].asInt(),  cameras[i]["compass"].asInt(), i, fujiPoint);
+                    }
+                }
+            }
         }
     }
 }

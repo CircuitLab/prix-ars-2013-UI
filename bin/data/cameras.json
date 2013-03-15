@@ -1,0 +1,150 @@
+{
+  "cameras": [
+    {
+      "udid": "1",
+      "latitude": 35.47535,
+      "longitude": 138.574505,
+      "compass": 231,
+      "angle": 90,
+      "operable": false,
+      "photos": [
+        {
+          "url": "",
+          "correction": "",
+          "latitude": "",
+          "longitude": "",
+          "compass": "",
+          "angle": ""
+        }
+      ]
+    },
+    {
+      "udid": "2",
+      "latitude": 35.413956,
+      "longitude": 138.862038,
+      "compass": 117,
+      "angle": 90,
+      "operable": false,
+      "photos": [
+        {
+          "url": "",
+          "correction": "",
+          "latitude": "",
+          "longitude": "",
+          "compass": "",
+          "angle": ""
+        }
+      ]
+    },
+    {
+      "udid": "3",
+      "latitude": 35.353216,
+      "longitude": 138.593216,
+      "compass": 283,
+      "angle": 90,
+      "operable": false,
+      "photos": [
+        {
+          "url": "",
+          "correction": "",
+          "latitude": "",
+          "longitude": "",
+          "compass": "",
+          "angle": ""
+        }
+      ]
+    },
+    {
+      "udid": "4",
+      "latitude": 35.258516,
+      "longitude": 138.698959,
+      "compass": 349,
+      "angle": 90,
+      "operable": false,
+      "photos": [
+        {
+          "url": "",
+          "correction": "",
+          "latitude": "",
+          "longitude": "",
+          "compass": "",
+          "angle": ""
+        }
+      ]
+    },
+    {
+      "udid": "5",
+      "latitude": 35.490866,
+      "longitude": 138.683853,
+      "compass": 196,
+      "angle": 90,
+      "operable": false,
+      "photos": [
+        {
+          "url": "",
+          "correction": "",
+          "latitude": "",
+          "longitude": "",
+          "compass": "",
+          "angle": ""
+        }
+      ]
+    },
+    {
+      "udid": "6",
+      "latitude": 35.345375,
+      "longitude": 138.573303,
+      "compass": 278,
+      "angle": 90,
+      "battery": 100,
+      "operable": true,
+      "living": true,
+      "photos": [
+        {
+          "url": "",
+          "correction": "",
+          "latitude": "",
+          "longitude": "",
+          "compass": "",
+          "angle": ""
+        }
+      ]
+    },
+    {
+      "udid": "7",
+      "latitude": 35.244498,
+      "longitude": 138.702393,
+      "compass": 352,
+      "angle": 90,
+      "battery": 100,
+      "operable": true,
+      "living": true,
+      "photos": [
+        {
+          "url": "",
+          "correction": "",
+          "latitude": "",
+          "longitude": "",
+          "compass": "",
+          "angle": ""
+        }
+      ]
+    }
+  ]
+}
+udid ... 撮影したカメラの udid
+url ... 撮影した画像の URL
+correction ... 画角の補正値(%単位)
+latitude ... 撮影したカメラの緯度
+longitude ... 撮影したカメラの経度
+compass ... カメラの向いている方位(0〜360)
+angle ... カメラの仰角
+{
+  "udid": "xxxx", // カメラのudid
+  "url": "http://example.com/", // 緯度情報
+  "correction": 10.29, // 経度情報
+  "latitude": 35.663411, // カメラの向いている方位
+  "longitude": 139.70502, // 仰角
+  "compass": 76, // バッテリ残量 (カメラが iPhone の場合のみ)
+  "angle": 45
+}

@@ -7,7 +7,7 @@ void testApp::initOSC()
 {
     stateMachine.getSharedData().oscSenderToDisplay.setup(DISPLAY_HOST, DISPLAY_PORT);
     stateMachine.getSharedData().oscReceiverFromServer.setup(INCOMING_PORT);    
-    stateMachine.getSharedData().oscSenderToServer.setup(SERVER_HOST, SERVER_PORT);
+    stateMachine.getSharedData().oscSenderToServer.setup(SERVER_HOST_PRODUCTION, SERVER_PORT);
 }
 
 //--------------------------------------------------------------

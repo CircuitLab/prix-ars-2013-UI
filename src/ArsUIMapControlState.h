@@ -12,11 +12,14 @@
 #define GUI_CANVAS_WIDTH 200
 #define GUI_CANVAS_HEIGHT ofGetHeight()
 
+#define EYE_LEFT  0
+#define EYE_RIGHT 1
+
 #include "ofxState.h"
 #include "ofxXmlSettings.h"
 #include "ArsUISharedData.h"
 #include "ofxTween.h"
-#include "ArsUIRoboCam.h"
+#include "ArsUIOperableCamera.h"
 #include "ofxJSONElement.h"
 #include "ofxUI.h"
 #include "ArsUIUtil.h"
@@ -42,8 +45,10 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
     private:
         void init();
     
-        vector <ArsUIButton> inoperableCameras; // web camera
-        vector <ArsUIRoboCam> operableCameras; // robot
+        vector <ArsUICamera> inoperableCameras; // web camera
+        vector <ArsUIOperableCamera> operableCameras; // robot
+        ArsUICamera createCamera(ofxJSONElement json, int bid);
+        ArsUIOperableCamera createOperableCamera(ofxJSONElement json, int bid);
     
         void tuioAdded(ofxTuioCursor & tuioCursor);
         void tuioRemoved(ofxTuioCursor & tuioCursor);
@@ -52,9 +57,9 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
     
         void onOscMessageReceived(ofxOscMessage &msg);
     
-        void sendViewpointToServer(ArsUIRoboCam cam);
-        void sendTakeTriggerToServer(int camId);
-        void sendOSCToDisplay(int bid);
+        void sendViewpointToServer(ArsUIOperableCamera cam);
+        void sendShootingTriggerToServer(int camId);
+        void sendImageUrlToDisplay(int whichEye, string url);
     
         ofImage fujiMap;
         ofPoint fujiPoint;
@@ -68,7 +73,6 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
         ofxJSONElement json;
 
         string rightImageFile, leftImageFile;
-        void getPictureFromURL(string url);
     
         void setupGUI();
         ofxUICanvas *gui;
@@ -77,9 +81,11 @@ class ArsUIMapControlState : public Apex::ofxState<ArsUISharedData>
         bool isCam1Draggable, isCam2Draggable;
         int cam1FingerId, cam2FingerId;
         unsigned long long cam1TouchedStartedAt, cam2TouchedStartedAt;
-        void drawCamStatuses(ArsUIRoboCam cam);
+        void drawCamStatuses(ArsUIOperableCamera cam);
     
         bool bShowStatus;
+    
+        ofxTimer doubleTapTimer;
 };
 
 #endif

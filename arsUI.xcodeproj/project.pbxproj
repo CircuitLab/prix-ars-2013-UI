@@ -46,8 +46,8 @@
 		AB27023616EECF4C000AC44E /* ofxEasingSine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB27022316EECF4C000AC44E /* ofxEasingSine.cpp */; };
 		AB27023716EECF4C000AC44E /* ofxTween.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB27022516EECF4C000AC44E /* ofxTween.cpp */; };
 		AB27024316EF62F6000AC44E /* ofxTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB27024116EF62F6000AC44E /* ofxTimer.cpp */; };
-		AB47ADA016D73C9C00C50356 /* ArsUIButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB47AD9E16D73C9C00C50356 /* ArsUIButton.cpp */; };
-		AB47ADFD16DB355500C50356 /* ArsUIRoboCam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB47ADFB16DB355500C50356 /* ArsUIRoboCam.cpp */; };
+		AB47ADA016D73C9C00C50356 /* ArsUICamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB47AD9E16D73C9C00C50356 /* ArsUICamera.cpp */; };
+		AB47ADFD16DB355500C50356 /* ArsUIOperableCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB47ADFB16DB355500C50356 /* ArsUIOperableCamera.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
@@ -248,10 +248,10 @@
 		AB27022616EECF4C000AC44E /* ofxTween.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxTween.h; sourceTree = "<group>"; };
 		AB27024116EF62F6000AC44E /* ofxTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxTimer.cpp; sourceTree = "<group>"; };
 		AB27024216EF62F6000AC44E /* ofxTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxTimer.h; sourceTree = "<group>"; };
-		AB47AD9E16D73C9C00C50356 /* ArsUIButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ArsUIButton.cpp; sourceTree = "<group>"; };
-		AB47AD9F16D73C9C00C50356 /* ArsUIButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArsUIButton.h; sourceTree = "<group>"; };
-		AB47ADFB16DB355500C50356 /* ArsUIRoboCam.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ArsUIRoboCam.cpp; sourceTree = "<group>"; };
-		AB47ADFC16DB355500C50356 /* ArsUIRoboCam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArsUIRoboCam.h; sourceTree = "<group>"; };
+		AB47AD9E16D73C9C00C50356 /* ArsUICamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ArsUICamera.cpp; sourceTree = "<group>"; };
+		AB47AD9F16D73C9C00C50356 /* ArsUICamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArsUICamera.h; sourceTree = "<group>"; };
+		AB47ADFB16DB355500C50356 /* ArsUIOperableCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ArsUIOperableCamera.cpp; sourceTree = "<group>"; };
+		AB47ADFC16DB355500C50356 /* ArsUIOperableCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArsUIOperableCamera.h; sourceTree = "<group>"; };
 		AB47AE0016DCEF2300C50356 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
@@ -787,10 +787,10 @@
 				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
 				40DDEEFA16D5F5A5000C1E58 /* ArsUITappedPoint.h */,
 				40DDEEF916D5F5A5000C1E58 /* ArsUITappedPoint.cpp */,
-				AB47AD9F16D73C9C00C50356 /* ArsUIButton.h */,
-				AB47AD9E16D73C9C00C50356 /* ArsUIButton.cpp */,
-				AB47ADFC16DB355500C50356 /* ArsUIRoboCam.h */,
-				AB47ADFB16DB355500C50356 /* ArsUIRoboCam.cpp */,
+				AB47AD9F16D73C9C00C50356 /* ArsUICamera.h */,
+				AB47AD9E16D73C9C00C50356 /* ArsUICamera.cpp */,
+				AB47ADFC16DB355500C50356 /* ArsUIOperableCamera.h */,
+				AB47ADFB16DB355500C50356 /* ArsUIOperableCamera.cpp */,
 				AB2701DE16EECBE0000AC44E /* ArsUITitleState.h */,
 				AB2701DF16EECBFA000AC44E /* ArsUITitleState.cpp */,
 				AB2701EE16EECC49000AC44E /* ArsUISharedData.h */,
@@ -911,8 +911,8 @@
 				40FA61F816D35BBD00493C03 /* ofxOscSender.cpp in Sources */,
 				40DDEEFB16D5F5A5000C1E58 /* ArsUITappedPoint.cpp in Sources */,
 				40DDEF0616D604D3000C1E58 /* ofxEasingFunc.cpp in Sources */,
-				AB47ADA016D73C9C00C50356 /* ArsUIButton.cpp in Sources */,
-				AB47ADFD16DB355500C50356 /* ArsUIRoboCam.cpp in Sources */,
+				AB47ADA016D73C9C00C50356 /* ArsUICamera.cpp in Sources */,
+				AB47ADFD16DB355500C50356 /* ArsUIOperableCamera.cpp in Sources */,
 				AB2701E016EECBFA000AC44E /* ArsUITitleState.cpp in Sources */,
 				AB2701EA16EECC26000AC44E /* tinyxml.cpp in Sources */,
 				AB2701EB16EECC26000AC44E /* tinyxmlerror.cpp in Sources */,

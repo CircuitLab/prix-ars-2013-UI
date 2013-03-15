@@ -32,15 +32,19 @@ void ArsUIMapControlState::stateEnter()
     bShowStatus = true;
     
     fujiPoint.set(964, 600);
-    ofPoint p = ArsUIUtil::XYtoGPS(fujiPoint);
-    cout << "XYtoGPS x: " << p.x << ", y: " << p.y << endl;
     
-    for (int i = 0; i < 10; ++i) {
-        inoperableCameras.push_back(ArsUIButton(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60), ""));
-    }
+    json.clear();
     
-    for (int i = 10; i < (10 + getSharedData().numRobots); ++i) {
-        operableCameras.push_back(ArsUIRoboCam(ofRandom(ofGetWidth()), ofRandom(ofGetHeight() - 100), i, fujiPoint, ofRandom(20, 60), ""));
+    if (json.open(ofToDataPath("cameras.json"))) {
+        for (int i = 0; i < json["cameras"].size(); ++i) {
+            ofxJSONElement camera = json["cameras"][i];
+            
+            if (true == camera["operable"].asBool()) {
+                operableCameras.push_back(createOperableCamera(camera, i));
+            } else {
+                inoperableCameras.push_back(createCamera(camera, i));
+            }
+        }
     }
     
     cam1Position = ofPoint(operableCameras[0].getPosition().x, operableCameras[0].getPosition().y);
@@ -48,7 +52,7 @@ void ArsUIMapControlState::stateEnter()
     
     eyes[0] = -1;
     eyes[1] = -1;
-    selectedEye = 0;
+    selectedEye = EYE_LEFT;
     
     fujiMap.loadImage("map.png");
     
@@ -64,6 +68,11 @@ void ArsUIMapControlState::stateEnter()
     
     sendViewpointToServer(operableCameras[0]);
     sendViewpointToServer(operableCameras[1]);
+    
+    for (int i = 0; i < operableCameras.size(); ++i) {
+        sendViewpointToServer(operableCameras[i]);
+        sendImageUrlToDisplay(operableCameras[i].getEyeDirection(), "http://pds.exblog.jp/pds/1/200802/18/73/d0116173_14571347.jpg");
+    }
 }
 
 //--------------------------------------------------------------
@@ -127,12 +136,6 @@ void ArsUIMapControlState::draw()
     
     for (int i = 0; i < operableCameras.size(); ++i) {
         operableCameras[i].draw();
-        
-        ofPoint p = operableCameras[i].getPosition();
-        
-        ofSetColor(255, 0, 0);
-        ofLine(p.x, 0, p.x, ofGetHeight());
-        ofLine(0, p.y, ofGetWidth(), p.y);
     }
     
     ofPushStyle();
@@ -151,11 +154,34 @@ void ArsUIMapControlState::draw()
         }
     }
     
-    ofPopStyle();
+    double cam1deg = operableCameras[0].degreesAgainstFuji();
+    double cam2deg = operableCameras[1].degreesAgainstFuji();
     
-    ofSetColor(0, 255, 0);
-    ofLine(fujiPoint.x, 0, fujiPoint.x, ofGetHeight());
-    ofLine(0, fujiPoint.y, ofGetWidth(), fujiPoint.y);
+    if (0 <= cam1deg && 0 <= cam2deg) {
+        if (cam1deg < cam2deg) {
+            operableCameras[0].setEyeDirection(EYE_RIGHT);
+            operableCameras[1].setEyeDirection(EYE_LEFT);
+        } else {
+            operableCameras[0].setEyeDirection(EYE_LEFT);
+            operableCameras[1].setEyeDirection(EYE_RIGHT);
+        }
+    } else if (0 <= cam1deg && 0 > cam2deg) {
+        operableCameras[0].setEyeDirection(EYE_RIGHT);
+        operableCameras[1].setEyeDirection(EYE_LEFT);
+    } else if (0 > cam1deg && 0 > cam2deg) {
+        if (cam1deg < cam2deg) {
+            operableCameras[0].setEyeDirection(EYE_RIGHT);
+            operableCameras[1].setEyeDirection(EYE_LEFT);
+        } else {
+            operableCameras[0].setEyeDirection(EYE_LEFT);
+            operableCameras[1].setEyeDirection(EYE_RIGHT);
+        }
+    } else if (0 > cam1deg && 0 <= cam2deg) {
+        operableCameras[0].setEyeDirection(EYE_LEFT);
+        operableCameras[1].setEyeDirection(EYE_RIGHT);
+    }
+    
+    ofPopStyle();
 }
 
 //--------------------------------------------------------------
@@ -205,19 +231,31 @@ void ArsUIMapControlState::setupGUI()
 }
 
 //--------------------------------------------------------------
+ArsUICamera ArsUIMapControlState::createCamera(ofxJSONElement json, int bid)
+{
+    return ArsUICamera(json["latitude"].asDouble(), json["longitude"].asDouble(), json["udid"].asString(), json["angle"].asInt(),  json["compass"].asInt(), bid, fujiPoint);
+}
+
+//--------------------------------------------------------------
+ArsUIOperableCamera ArsUIMapControlState::createOperableCamera(ofxJSONElement json, int bid)
+{
+    return ArsUIOperableCamera(json["latitude"].asDouble(), json["longitude"].asDouble(), json["udid"].asString(), json["angle"].asInt(),  json["compass"].asInt(), json["battery"].asInt(), json["living"].asBool(), bid, fujiPoint);
+}
+
+//--------------------------------------------------------------
 void ArsUIMapControlState::setEye(int bid)
 {
     int lastEye = eyes[selectedEye];
     
     if (-1 != lastEye) {
         for (int i = 0; i < inoperableCameras.size(); ++i) {
-            if(inoperableCameras[i].getId() == lastEye){
+            if(inoperableCameras[i].getButtonId() == lastEye){
                 inoperableCameras[i].setStatus(0);
             }
         }
         
         for (int i = 0; i < operableCameras.size(); ++i) {
-            if(operableCameras[i].getId() == lastEye){
+            if(operableCameras[i].getButtonId() == lastEye){
                 operableCameras[i].setStatus(0);
             }
         }
@@ -225,7 +263,7 @@ void ArsUIMapControlState::setEye(int bid)
     
     eyes[selectedEye] = bid;
     
-    selectedEye = !selectedEye ? 1 : 0;
+    selectedEye = !selectedEye ? EYE_RIGHT : EYE_LEFT;
 }
 
 //--------------------------------------------------------------
@@ -244,7 +282,6 @@ void ArsUIMapControlState::tuioAdded(ofxTuioCursor &tuioCursor)
         if (0 <= bid && bid != eyes[0] && bid != eyes[1]) {
             setEye(bid);
             inoperableCameras[i].setStatus(1);
-            sendOSCToDisplay(bid);
         }
     }
     
@@ -254,7 +291,6 @@ void ArsUIMapControlState::tuioAdded(ofxTuioCursor &tuioCursor)
         if (0 <= bid && bid != eyes[0] && bid != eyes[1]){
             setEye(bid);
             operableCameras[i].setStatus(1);
-            sendOSCToDisplay(bid);
         }
     }
     
@@ -290,11 +326,13 @@ void ArsUIMapControlState::tuioRemoved(ofxTuioCursor &tuioCursor)
         cam1FingerId = -1;
         isCam1Draggable = false;
         sendViewpointToServer(operableCameras[0]);
+        sendImageUrlToDisplay(operableCameras[0].getEyeDirection(), "http://cache5.amanaimages.com/cen3tzG4fTr7Gtw1PoeRer/22973000320.jpg");
     } else if (tuioCursor.getFingerId() == cam2FingerId) {
         cam2TouchedStartedAt = 0;
         cam2FingerId = -1;
         isCam2Draggable = false;
         sendViewpointToServer(operableCameras[1]);
+        sendImageUrlToDisplay(operableCameras[1].getEyeDirection(), "http://cache5.amanaimages.com/cen3tzG4fTr7Gtw1PoeRer/22973000320.jpg");
     }
 }
 
@@ -344,56 +382,74 @@ void ArsUIMapControlState::drawTuioCursors()
 }
 
 //--------------------------------------------------------------
-void ArsUIMapControlState::drawCamStatuses(ArsUIRoboCam cam)
+void ArsUIMapControlState::drawCamStatuses(ArsUIOperableCamera cam)
 {
     string str = "X      : " + ofToString(cam.getPosition().x) +
                "\nY      : " + ofToString(cam.getPosition().y) +
-               "\nANGLE  : " + ofToString(cam.getAngle()) +
-               "\nCOMPASS: " + ofToString(cam.getCompass());
-    ofDrawBitmapString(str, cam.getPosition() + ofPoint(70, -50));
+               "\nANGLE  : " + ofToString(cam.degreesAgainstFuji()) +
+               "\nCOMPASS: " + ofToString(cam.getCompass()) +
+               "\nEYE    : " + ofToString(EYE_LEFT == cam.getEyeDirection() ? "LEFT" : "RIGHT");
+    ofDrawBitmapString(str, cam.getPosition() + ofPoint(70, -80));
 }
 
 //--------------------------------------------------------------
 void ArsUIMapControlState::onOscMessageReceived(ofxOscMessage &msg)
 {
+    json.clear();
+    
     string addr = msg.getAddress();
     
     cout << "OSC received. address: " << addr << endl;
     
     if ("/gianteyes/camera" == addr) {
-        int udid = msg.getArgAsInt32(0);
-        float lat = msg.getArgAsFloat(1);
-        float lon = msg.getArgAsFloat(2);
-        float compass = msg.getArgAsFloat(3);
-        int angle = msg.getArgAsInt32(4);
-        int battery = msg.getArgAsInt32(5);
-        int operable = msg.getArgAsInt32(6);
-        int living = msg.getArgAsInt32(7);
-    } else if ("/gianteyes/photo" == addr) {
-        int udid = msg.getArgAsInt32(0);
-        string url = msg.getArgAsString(1);
-        float correction = msg.getArgAsFloat(2);
-        float lat = msg.getArgAsFloat(3);
-        float lon = msg.getArgAsFloat(4);
-        float compass = msg.getArgAsFloat(5);
-        int angle = msg.getArgAsInt32(6);
+        string jsonString = msg.getArgAsString(0);
         
-        getPictureFromURL(url);
+        if (0 < jsonString.length()) {
+            if (json.parse(jsonString)) {
+                string udid = json["udid"].asString();
+                
+                if (true == json["operable"].asBool()) {
+                    for (int i = 0; i < operableCameras.size(); ++i) {
+                        if (operableCameras[i].getUDID() == udid) {
+                            operableCameras[i].setCameraStatus(json);
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < inoperableCameras.size(); ++i) {
+                        if (inoperableCameras[i].getUDID() == udid) {
+                            inoperableCameras[i].setCameraStatus(json);
+                        }
+                    }
+                }
+            }
+        }
+    } else if ("/gianteyes/photo" == addr) {
+        string jsonString = msg.getArgAsString(0);
+        
+        if (0 < jsonString.length()) {
+            if (json.parse(jsonString)) {
+                for (int i = 0; i < operableCameras.size(); ++i) {
+                    if (json["udid"] == operableCameras[i].getUDID()) {
+                        sendImageUrlToDisplay(operableCameras[i].getEyeDirection(), json["url"].asString());
+                    }
+                }
+            }
+        }
     } else if ("/gianteyes/cameras" == addr) {
         string jsonString = msg.getArgAsString(0);
         
         if (0 < jsonString.length()) {
             if (json.parse(jsonString)) {
-                ofxJSONElement cameras = json["cameras"];
-                
                 inoperableCameras.clear();
                 operableCameras.clear();
                 
-                for (int i = 0; i < cameras.size(); ++i) {
-                    if (true == cameras[i]["operable"].asBool()) {
-                        ArsUIRoboCam r = ArsUIRoboCam(cameras[i]["latitude"].asDouble(), cameras[i]["longitude"].asDouble(), cameras[i]["udid"].asString(), cameras[i]["angle"].asInt(),  cameras[i]["compass"].asInt(), cameras[i]["battery"].asInt(), cameras[i]["living"].asBool(), i, fujiPoint);
+                for (int i = 0; i < json["cameras"].size(); ++i) {
+                    ofxJSONElement camera = json["cameras"][i];
+                    
+                    if (true == camera["operable"].asBool()) {
+                        operableCameras.push_back(createOperableCamera(camera, i));
                     } else {
-                        ArsUIButton b = ArsUIButton(cameras[i]["latitude"].asDouble(), cameras[i]["longitude"].asDouble(), cameras[i]["udid"].asString(), cameras[i]["angle"].asInt(),  cameras[i]["compass"].asInt(), i, fujiPoint);
+                        inoperableCameras.push_back(createCamera(camera, i));
                     }
                 }
             }
@@ -402,24 +458,18 @@ void ArsUIMapControlState::onOscMessageReceived(ofxOscMessage &msg)
 }
 
 //--------------------------------------------------------------
-void ArsUIMapControlState::getPictureFromURL(string url)
-{
-    
-}
-
-//--------------------------------------------------------------
-void ArsUIMapControlState::sendViewpointToServer(ArsUIRoboCam cam)
+void ArsUIMapControlState::sendViewpointToServer(ArsUIOperableCamera cam)
 {
     ofxOscMessage msg;
     msg.setAddress("/gianteyes/viewpoint");
-    msg.addIntArg(cam.getId());
+    msg.addIntArg(cam.getButtonId());
     msg.addIntArg(cam.getCompass());
     msg.addIntArg(cam.getAngle());
     getSharedData().oscSenderToServer.sendMessage(msg);
 }
 
 //--------------------------------------------------------------
-void ArsUIMapControlState::sendTakeTriggerToServer(int camId)
+void ArsUIMapControlState::sendShootingTriggerToServer(int camId)
 {
     ofxOscMessage msg;
     msg.setAddress("/gianteyes/take");
@@ -428,19 +478,13 @@ void ArsUIMapControlState::sendTakeTriggerToServer(int camId)
 }
 
 //--------------------------------------------------------------
-void ArsUIMapControlState::sendOSCToDisplay(int bid)
+void ArsUIMapControlState::sendImageUrlToDisplay(int whichEye, string url)
 {
     ofxOscMessage msg;
     
-    if (1 == selectedEye) {
-        msg.setAddress("/right/image");
-        msg.addStringArg("right file address");
-    } else if (0 == selectedEye)  {
-        msg.setAddress("/left/image");
-        msg.addStringArg("left file address");
-    }
+    EYE_RIGHT == whichEye ? msg.setAddress("/url/right") : msg.setAddress("/url/left");
     
-    msg.addIntArg(bid);
+    msg.addStringArg(url);
     getSharedData().oscSenderToDisplay.sendMessage(msg);
 }
 

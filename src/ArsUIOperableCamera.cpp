@@ -1,28 +1,30 @@
-#include "ArsUIRoboCam.h"
+#include "ArsUIOperableCamera.h"
 
 //--------------------------------------------------------------
-ArsUIRoboCam::ArsUIRoboCam(float _x, float _y, int _bid, ofPoint _fuji,float _angle, string _udid):ArsUIButton(_x, _y, _bid, _fuji, _angle, _udid)
+ArsUIOperableCamera::ArsUIOperableCamera(float _x, float _y, int _bid, ofPoint _fuji,float _angle, string _udid):ArsUICamera(_x, _y, _bid, _fuji, _angle, _udid)
 {
-    ArsUIButton::mark.loadImage("markyellow.png");
+    operable = true;
+    ArsUICamera::mark.loadImage("markyellow.png");
 }
 
-ArsUIRoboCam::ArsUIRoboCam(double _lat, double _lon, string _udid, int _angle, int _compass, float _battery, bool _living, int _bid, ofPoint _fuji):ArsUIButton(
+ArsUIOperableCamera::ArsUIOperableCamera(double _lat, double _lon, string _udid, int _angle, int _compass, float _battery, bool _living, int _bid, ofPoint _fuji):ArsUICamera(
 _lat, _lon, _udid, _angle, _compass, _bid, _fuji)
 {
+    operable = true;
     battery = _battery;
     living = _living;
-    ArsUIButton::mark.loadImage("markyellow.png");
+    ArsUICamera::mark.loadImage("markyellow.png");
 }
 
 //--------------------------------------------------------------
-void ArsUIRoboCam::update()
+void ArsUIOperableCamera::update()
 {
-    ArsUIButton::update();
+    ArsUICamera::update();
     // dragAngle(x, y);
 }
 
 //--------------------------------------------------------------
-void ArsUIRoboCam::draw()
+void ArsUIOperableCamera::draw()
 {
     //status: 0:default 1:select
     
@@ -82,9 +84,9 @@ void ArsUIRoboCam::draw()
 }
 
 //--------------------------------------------------------------
-int ArsUIRoboCam::hitTestPoint(ofPoint p)
+int ArsUIOperableCamera::hitTestPoint(ofPoint p)
 {
-    int _bid = ArsUIButton::hitTestPoint(p);
+    int _bid = ArsUICamera::hitTestPoint(p);
    
     if (-1 != _bid && 1 == status) {
         setDefaultAngle();
@@ -93,14 +95,14 @@ int ArsUIRoboCam::hitTestPoint(ofPoint p)
 }
 
 //--------------------------------------------------------------
-void ArsUIRoboCam::dragAngle(float _x, float _y)
+void ArsUIOperableCamera::dragAngle(float _x, float _y)
 {
     if(status == 1){
         float distance = sqrt((x - _x) * (x - _x) + (y - _y) * (y - _y));
         if (distance  > radius && distance < radius * 1.5) {
             ofPoint p1 = ofPoint(x, y);
             ofPoint p2 = ofPoint(_x, _y);
-            float newAngle = ArsUIButton::calcDirection(&p1, &p2);
+            float newAngle = ArsUICamera::calcDirection(&p1, &p2);
         //    if(newAngle < directionToFuji + 0.8 && newAngle > directionToFuji - 0.8 ){
                 currentDirection = newAngle;
           //  }
@@ -109,7 +111,7 @@ void ArsUIRoboCam::dragAngle(float _x, float _y)
 }
 
 //--------------------------------------------------------------
-bool ArsUIRoboCam::dragAngleEnded (float _x, float _y)
+bool ArsUIOperableCamera::dragAngleEnded (float _x, float _y)
 {
     if(status == 1){
         float distance = sqrt((x - _x) * (x - _x) + (y - _y) *(y - _y) );
@@ -122,13 +124,25 @@ bool ArsUIRoboCam::dragAngleEnded (float _x, float _y)
 }
 
 //--------------------------------------------------------------
-void ArsUIRoboCam::setDefaultAngle()
+void ArsUIOperableCamera::setDefaultAngle()
 {
     currentDirection = directionToFuji;
 }
 
 //--------------------------------------------------------------
-void ArsUIRoboCam::setRoboStatus(string _udid, double _lat, double _long, double _robox, double _roboy, double _battery, bool _living)
+int ArsUIOperableCamera::getEyeDirection()
+{
+    return eyeDirection;
+}
+
+//--------------------------------------------------------------
+void ArsUIOperableCamera::setEyeDirection(int direction)
+{
+    eyeDirection = direction;
+}
+
+//--------------------------------------------------------------
+void ArsUIOperableCamera::setRoboStatus(string _udid, double _lat, double _long, double _robox, double _roboy, double _battery, bool _living)
 {
     udid = _udid;
     latitude = _lat;
@@ -143,7 +157,7 @@ void ArsUIRoboCam::setRoboStatus(string _udid, double _lat, double _long, double
 }
 
 //--------------------------------------------------------------
-void ArsUIRoboCam::setCamStatus(string jsonString)
+void ArsUIOperableCamera::setCamStatus(string jsonString)
 {
     ofxJSONElement json;
     if (json.parse(jsonString)) {
@@ -155,25 +169,52 @@ void ArsUIRoboCam::setCamStatus(string jsonString)
 
 
 //--------------------------------------------------------------
-int ArsUIRoboCam::getBattery()
+int ArsUIOperableCamera::getBattery()
 {
     return (int)battery;
 }
 
 //--------------------------------------------------------------
-void ArsUIRoboCam::setBattery(int value)
+void ArsUIOperableCamera::setBattery(int value)
 {
     battery = value;
 }
 
 //--------------------------------------------------------------
-bool ArsUIRoboCam::getLiving()
+bool ArsUIOperableCamera::getLiving()
 {
     return living;
 }
 
 //--------------------------------------------------------------
-void ArsUIRoboCam::setLiving(bool value)
+void ArsUIOperableCamera::setLiving(bool value)
 {
     living = value;
+}
+
+//--------------------------------------------------------------
+void ArsUIOperableCamera::setCameraStatus(double _lat, double _lon, int compass, int angle)
+{
+    latitude = _lat;
+    longitude = _lon;
+    ofPoint place = GPStoXY(_lat, _lon);
+    x = place.x;
+    y = place.y;
+    
+}
+
+//--------------------------------------------------------------
+void ArsUIOperableCamera::setCameraStatus(ofxJSONElement json)
+{
+    latitude = json["latitude"].asDouble();
+    longitude = json["longitude"].asDouble();
+    
+    ofPoint p = GPStoXY(latitude, longitude);
+    x = p.x;
+    y = p.y;
+    
+    compass = json["compass"].asInt();
+    angle = json["angle"].asInt();
+    battery = json["battery"].asInt();
+    living = json["living"].asBool();
 }

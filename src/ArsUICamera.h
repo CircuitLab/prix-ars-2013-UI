@@ -11,7 +11,7 @@ class ArsUICamera
         int angle;
         bool operable;
     
-        int status, bcnt, speed, tcnt; //status 0: not selected, 1:selected, 2: broken
+        int status, bcnt, speed, tcnt; // status 0: not selected, 1:selected, 2: broken
         ofImage mark, markShadow;
         float x, y, radius;
         int bid;

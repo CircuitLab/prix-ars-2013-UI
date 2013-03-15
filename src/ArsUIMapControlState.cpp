@@ -403,6 +403,7 @@ void ArsUIMapControlState::onOscMessageReceived(ofxOscMessage &msg)
     
     if ("/gianteyes/camera" == addr) {
         string jsonString = msg.getArgAsString(0);
+        cout << "jsonString: " << jsonString << endl;
         
         if (0 < jsonString.length()) {
             if (json.parse(jsonString)) {
@@ -437,6 +438,7 @@ void ArsUIMapControlState::onOscMessageReceived(ofxOscMessage &msg)
         }
     } else if ("/gianteyes/cameras" == addr) {
         string jsonString = msg.getArgAsString(0);
+        cout << "jsonString: " << jsonString << endl;
         
         if (0 < jsonString.length()) {
             if (json.parse(jsonString)) {
